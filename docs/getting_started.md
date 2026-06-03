@@ -6,6 +6,26 @@ Set aside about 30 minutes for the initial setup. Training the model takes anoth
 
 ---
 
+## The fast path: one setup script
+
+Once you've installed Python, Node.js, and Ollama (steps 1–3 below), run this from the project folder and it will handle the rest:
+
+**Mac / Linux:**
+```bash
+python3 setup.py
+```
+
+**Windows (PowerShell):**
+```
+python setup.py
+```
+
+The script checks your versions, creates a virtual environment, installs all Python and Node packages, and tells you exactly what's wrong if something fails. If it ends with "Setup complete" you're ready to train.
+
+If you prefer to do it manually, continue with the steps below.
+
+---
+
 ## What is a terminal?
 
 A terminal is a text-based way to talk to your computer. Instead of clicking on icons, you type commands and your computer responds. It sounds old-fashioned, but it's faster for this kind of work.

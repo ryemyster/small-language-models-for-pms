@@ -153,16 +153,23 @@ package.json                # Node dependencies
 
 ## Quick start
 
-If your environment is already set up:
+**First time? Run the setup script** — it handles Python deps, Node deps, and checks everything is in place:
 
 ```bash
-python training/train.py    # fine-tune the model (~20 min on a laptop CPU)
+python3 setup.py        # Mac / Linux
+python setup.py         # Windows
+```
+
+Then train and run:
+
+```bash
+python3 training/train.py   # fine-tune the model (~20 min on a laptop CPU)
 npm run start               # serve the model at localhost:3000
 npm run classify            # send feedback, get a label back
 npm run compare             # fine-tuned model vs. Ollama, side by side
 ```
 
-First time? See [docs/getting_started.md](docs/getting_started.md).
+Full setup guide: [docs/getting_started.md](docs/getting_started.md).
 
 ---
 
