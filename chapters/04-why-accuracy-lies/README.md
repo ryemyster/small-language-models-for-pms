@@ -1,35 +1,30 @@
-# Chapter 04 — Starting Point
+# Chapter 04 — Why Accuracy Lies
 
-**Read first:** [docs/04-why-accuracy-lies.md](../../docs/04-why-accuracy-lies.md)
+You're in the right place. Open the chapter guide and follow it:
+
+→ **[docs/04-why-accuracy-lies.md](../../docs/04-why-accuracy-lies.md)**
+
+---
 
 ## What's in this folder
 
-| File | Description |
-|------|-------------|
-| `data/feedback.csv` | 163 labeled examples — completed from Chapter 02 |
-| `data/bad_eval.csv` | Intentionally flawed eval dataset — new this chapter |
-| `train.py` | Training script (same as Chapter 03) |
-| `score_eval.py` | Eval scoring script — new this chapter |
+**Carried from Chapter 03:**
+
+| File | What it is |
+|------|------------|
+| `data/feedback.csv` | 163 labeled examples |
+| `train.py` | Training script |
 | `requirements.txt` | Python dependencies |
 
-## Before you start
+**New this chapter:**
 
-You need a trained model. If you haven't done Chapter 03 yet, run training first:
+| File | What it is |
+|------|------------|
+| `data/bad_eval.csv` | Intentionally flawed eval — you'll run it and see why the score is misleading |
+| `score_eval.py` | Scores any labeled CSV against your trained model |
 
-```bash
-python3 -m venv .venv && source .venv/bin/activate
-pip install -r requirements.txt
-python3 train.py
-```
+---
 
-## What you'll do in this chapter
+## You need a trained model
 
-- Run the bad eval and see the misleading score
-- Understand the three failure patterns
-- Learn what a trustworthy eval needs to look like
-
-## Run the bad eval
-
-```bash
-python3 score_eval.py --eval data/bad_eval.csv
-```
+The doc will check for `model/` before you run anything. If it's missing, the doc tells you exactly how to generate it.

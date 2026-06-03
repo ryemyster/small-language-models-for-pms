@@ -1,35 +1,39 @@
-# Chapter 09 — Starting Point (Final)
+# Chapter 09 — Make It Yours
 
-**Read first:** [docs/09-make-it-yours.md](../../docs/09-make-it-yours.md)
+You're in the right place. Open the chapter guide and follow it:
 
-This folder contains the complete final state of the tutorial — everything built across chapters 02–08. Use it as a reference, or as the starting point for adapting the template to your own use case.
+→ **[docs/09-make-it-yours.md](../../docs/09-make-it-yours.md)**
+
+---
 
 ## What's in this folder
 
-| File | Description |
-|------|-------------|
-| `data/feedback.csv` | 175 labeled customer feedback examples |
-| `data/eval.csv` | 100-row fixed eval, 20 per label |
-| `data/bad_eval.csv` | Intentionally flawed eval (chapter 04 reference) |
-| `train.py` | Fine-tuning script |
-| `score_eval.py` | Eval scorer with confusion matrix |
+This is the complete final state of the tutorial — everything built across Chapters 02–08. Use it as your starting point for your own use case.
+
+| File / Folder | What it is |
+|---------------|------------|
+| `data/feedback.csv` | 175 labeled customer feedback examples — replace with yours |
+| `data/eval.csv` | 100-row fixed eval — replace with yours |
+| `data/bad_eval.csv` | Flawed eval reference from Chapter 04 |
+| `train.py` | Training script — auto-detects your labels from the CSV |
+| `score_eval.py` | Eval scorer — works with any labeled CSV |
 | `experiment-log.md` | Track your training runs |
-| `requirements.txt` | Python dependencies |
-| `src/server.ts` | Classifier endpoint (model loads once) |
-| `src/classify.ts` | Client that calls the endpoint |
-| `src/compare.ts` | SLM vs. Ollama comparison |
-| `src/store.ts` | Classify + embed + store to Supabase |
-| `src/search.ts` | Semantic similarity search |
-| `supabase/migrations/` | pgvector schema migration |
-| `package.json` | All Node dependencies |
+| `src/server.ts` | Classifier endpoint |
+| `src/classify.ts` | TypeScript client |
+| `src/compare.ts` | SLM vs. TinyLlama comparison |
+| `src/store.ts` | Classify + embed + store (Chapter 08) |
+| `src/search.ts` | Semantic search (Chapter 08) |
+| `supabase/migrations/` | pgvector schema |
 
-## To adapt this for your own use case
+---
 
-1. Replace `data/feedback.csv` with your labeled examples (same two-column format)
-2. Replace `data/eval.csv` with your fixed eval (no overlap with training, 15–20 per label)
-3. Run `python3 train.py` — it auto-detects your labels from the CSV
-4. Run `python3 score_eval.py --eval data/eval.csv` — record the baseline
-5. Tune, retrain, re-eval until every label is above F1 = 0.80
-6. `npm run start` — same server, your labels come out
+## The four files you replace
 
-See [docs/09-make-it-yours.md](../../docs/09-make-it-yours.md) for the full walkthrough.
+To adapt this for your own problem, change only these four:
+
+1. `data/feedback.csv` — your labeled examples, same two-column format
+2. `data/eval.csv` — your fixed eval, no overlap with training
+3. *(optional)* `data/bad_eval.csv` — delete it or keep it
+4. `src/compare.ts` — update `TEST_EXAMPLES` with your domain's text
+
+Everything else — the server, the training script, the scorer — works with your data as-is.

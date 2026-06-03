@@ -1,37 +1,28 @@
-# Chapter 03 — Starting Point
+# Chapter 03 — Train a First Rough Model
 
-**Read first:** [docs/03-train-baseline.md](../../docs/03-train-baseline.md)
+You're in the right place. Open the chapter guide and follow it:
+
+→ **[docs/03-train-baseline.md](../../docs/03-train-baseline.md)**
+
+---
 
 ## What's in this folder
 
-| File | Description |
-|------|-------------|
-| `data/feedback.csv` | 163 labeled examples — completed work from Chapter 02 |
+**Carried from Chapter 02:**
+
+| File | What it is |
+|------|------------|
+| `data/feedback.csv` | 163 labeled examples — Chapter 02 completed |
+
+**New this chapter:**
+
+| File | What it is |
+|------|------------|
 | `train.py` | The fine-tuning script |
-| `requirements.txt` | Python dependencies |
+| `requirements.txt` | Python packages the script needs |
 
-## What you'll do in this chapter
+---
 
-- Install dependencies and run the training script
-- Understand what's happening during each step
-- Read the output numbers and know what they mean
+## One thing to know about `model/`
 
-## Setup
-
-```bash
-python3 -m venv .venv
-source .venv/bin/activate      # Mac/Linux — use .venv\Scripts\activate on Windows
-pip install -r requirements.txt
-```
-
-## Run training
-
-```bash
-python3 train.py
-```
-
-Takes 15–30 minutes on a laptop CPU. The trained model saves to `model/` (gitignored — regenerate any time by re-running this script).
-
-## Note on the model artifact
-
-`model/` is gitignored and not included here. Chapters 04+ that depend on a trained model require you to run `train.py` in this folder first.
+The doc will have you run `python3 train.py`. That generates a `model/` folder here with the trained model inside. That folder is gitignored — it's too large to store in git and you can always regenerate it by running `train.py` again. Chapters 04+ need a trained model, so if you skip ahead, run `train.py` in that chapter's folder first.

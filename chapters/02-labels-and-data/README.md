@@ -1,26 +1,23 @@
-# Chapter 02 — Starting Point
+# Chapter 02 — Labels and Training Data
 
-**Read first:** [docs/02-labels-and-training-data.md](../../docs/02-labels-and-training-data.md)
+You're in the right place. Open the chapter guide and follow it:
+
+→ **[docs/02-labels-and-training-data.md](../../docs/02-labels-and-training-data.md)**
+
+---
 
 ## What's in this folder
 
-| File | Description |
-|------|-------------|
-| `data/feedback-starter.csv` | Template with one example per label — your starting point |
+**New this chapter:**
 
-## What you'll do in this chapter
+| File | What it is |
+|------|------------|
+| `data/feedback-starter.csv` | One example per label — your working file for this chapter |
 
-- Learn what labels and training examples are
-- Understand what makes a strong vs. weak example
-- Add your own rows to `data/feedback-starter.csv`
+The doc will tell you to open this file, study how it's built, and understand why the examples are written the way they are.
 
-The completed version of `data/feedback-starter.csv` — with all 163 labeled examples — is in `chapters/03-train-baseline/data/feedback.csv`. Don't look ahead unless you're stuck.
+---
 
-## Format reminder
+## What carries forward
 
-```csv
-text,label
-"Your feedback text here.",label_name
-```
-
-Labels must be exactly one of: `bug_report`, `feature_request`, `pricing_concern`, `onboarding_friction`, `praise`
+When you finish this chapter, `chapters/03-train-baseline/data/feedback.csv` already has the completed version — 163 labeled examples — ready for you to train on. Don't edit that file. Your work lives here in `feedback-starter.csv`.

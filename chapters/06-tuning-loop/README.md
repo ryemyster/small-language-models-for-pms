@@ -1,42 +1,32 @@
-# Chapter 06 — Starting Point
+# Chapter 06 — Tune the Model Deliberately
 
-**Read first:** [docs/06-tuning-loop.md](../../docs/06-tuning-loop.md)
+You're in the right place. Open the chapter guide and follow it:
 
+→ **[docs/06-tuning-loop.md](../../docs/06-tuning-loop.md)**
+
+---
 
 ## What's in this folder
 
-| File | Description |
-|------|-------------|
-| `data/feedback.csv` | 175 labeled examples — includes 12 targeted additions for this chapter |
-| `data/eval.csv` | Fixed eval — unchanged, used for every comparison |
+**Carried from Chapter 05:**
+
+| File | What it is |
+|------|------------|
+| `data/eval.csv` | Fixed eval — unchanged, your ruler for every comparison |
+| `data/bad_eval.csv` | Flawed eval reference |
 | `train.py` | Training script |
-| `score_eval.py` | Scorer with confusion matrix |
-| `experiment-log.md` | Log template — fill in your baseline from Chapter 05 first |
+| `score_eval.py` | Eval scorer |
 | `requirements.txt` | Python dependencies |
 
-## Before you start
+**New this chapter:**
 
-1. Fill in your baseline scores from Chapter 05 in `experiment-log.md`
-2. Run training on the updated `feedback.csv`:
+| File | What it is |
+|------|------------|
+| `data/feedback.csv` | 175 labeled examples — 12 targeted additions at the bottom |
+| `experiment-log.md` | Log template — fill in your Chapter 05 baseline before retraining |
 
-```bash
-python3 -m venv .venv && source .venv/bin/activate
-pip install -r requirements.txt
-python3 train.py
-```
+---
 
-## What you'll do in this chapter
+## The 12 new rows matter
 
-- Study the confusion matrix from Chapter 05 to find the weakest label
-- Understand why the model confuses `onboarding_friction` with `bug_report`
-- Retrain on the updated training data (12 new targeted examples added)
-- Run the fixed eval and compare before/after F1 scores
-- Record the result in `experiment-log.md`
-
-## Run eval after training
-
-```bash
-python3 score_eval.py --eval data/eval.csv
-```
-
-Compare `onboarding_friction` F1 against your Chapter 05 baseline.
+Open `data/feedback.csv` and scroll to the bottom. The last 12 rows are the targeted additions the doc talks about — 10 for `onboarding_friction`, 2 for `pricing_concern`. The doc explains why each one was added and what pattern it targets.

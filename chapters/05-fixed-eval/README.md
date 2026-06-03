@@ -1,35 +1,31 @@
-# Chapter 05 — Starting Point
+# Chapter 05 — Build a Fixed Eval Suite
 
-**Read first:** [docs/05-fixed-eval.md](../../docs/05-fixed-eval.md)
+You're in the right place. Open the chapter guide and follow it:
+
+→ **[docs/05-fixed-eval.md](../../docs/05-fixed-eval.md)**
+
+---
 
 ## What's in this folder
 
-| File | Description |
-|------|-------------|
+**Carried from Chapter 04:**
+
+| File | What it is |
+|------|------------|
 | `data/feedback.csv` | 163 labeled examples |
 | `data/bad_eval.csv` | Flawed eval from Chapter 04 |
-| `data/eval.csv` | Fixed trustworthy eval — 100 examples, 20 per label, new this chapter |
 | `train.py` | Training script |
-| `score_eval.py` | Updated scorer with confusion matrix — new this chapter |
+| `score_eval.py` | Eval scorer |
 | `requirements.txt` | Python dependencies |
 
-## Before you start
+**New this chapter:**
 
-You need a trained model from Chapter 03 or 04. Run `python3 train.py` if you're starting here fresh.
+| File | What it is |
+|------|------------|
+| `data/eval.csv` | Fixed trustworthy eval — 100 examples, 20 per label, zero overlap with training |
 
-## What you'll do in this chapter
+---
 
-- Run the bad eval side-by-side with the fixed eval
-- Read precision, recall, F1, and the confusion matrix
-- Record your baseline scores in the experiment log (coming in Chapter 06)
-- Understand how evals work during development and in production
+## Record your baseline scores
 
-## Commands
-
-```bash
-# Run the bad eval (should look deceptively good)
-python3 score_eval.py --eval data/bad_eval.csv
-
-# Run the fixed eval (tells the truth)
-python3 score_eval.py --eval data/eval.csv
-```
+After you run the fixed eval, write down the F1 score for each label. You'll need those numbers in Chapter 06 to prove your tuning actually helped.
