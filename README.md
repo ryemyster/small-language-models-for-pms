@@ -120,7 +120,7 @@ Evaluation is not an appendix here. You'll build a fixed eval suite before you t
 | [05 — Build a fixed eval suite](docs/05-fixed-eval.md) | Create the trustworthy, repeatable test that anchors everything else |
 | [06 — Tune deliberately](docs/06-tuning-loop.md) | Improve the weak categories, one change at a time |
 | [07 — Serve the model](docs/07-serve-the-model.md) | Load the artifact into a TypeScript endpoint and call it like any API |
-| 08 — Optional: embeddings + storage | Store classified results with vectors for semantic search |
+| [08 — Optional: embeddings + storage](docs/08-embeddings-storage.md) | Store classified results with vectors for semantic search |
 | 09 — Make it your own | Adapt the full pipeline for your own use case |
 
 Start with [docs/getting_started.md](docs/getting_started.md) to set up your environment before chapter 02.
