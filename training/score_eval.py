@@ -8,7 +8,7 @@ Usage:
 The model must already be trained. Run training/train.py first if you
 haven't yet.
 
-Output: overall accuracy, per-label accuracy, and the rows it got wrong.
+Output: overall accuracy, per-label F1, confusion matrix, and the rows it got wrong.
 """
 
 import sys
@@ -24,6 +24,7 @@ except ImportError:
 
 import pandas as pd
 import torch
+from sklearn.metrics import classification_report, confusion_matrix
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 
 MODEL_DIR = "training/model"
@@ -81,15 +82,34 @@ def main():
 
     print(f"\nOverall accuracy: {correct}/{total} = {accuracy:.1%}")
 
-    # Per-label breakdown
-    print("\nPer-label accuracy:")
-    for label in sorted(set(true_labels)):
-        label_rows = [(t, p) for t, p in zip(true_labels, pred_labels) if t == label]
-        label_correct = sum(t == p for t, p in label_rows)
-        print(f"  {label:<22} {label_correct}/{len(label_rows)}", end="")
-        if len(label_rows) < 5:
-            print(f"  ← only {len(label_rows)} example(s) — not enough to trust this number", end="")
-        print()
+    # Per-label F1 and precision/recall
+    all_labels = sorted(set(true_labels) | set(pred_labels))
+    print("\nPer-label results:")
+    print("(Precision: when it predicts X, how often is it right?)")
+    print("(Recall: of all actual X examples, how many did it catch?)")
+    print("(F1: the balance between the two — the number to watch)\n")
+    report = classification_report(
+        true_labels, pred_labels, labels=all_labels, zero_division=0
+    )
+    print(report)
+
+    # Flag thin categories
+    for label in all_labels:
+        count = true_labels.count(label)
+        if count < 5:
+            print(f"  ⚠ '{label}' has only {count} example(s) — score for this label is not reliable")
+
+    # Confusion matrix
+    print("\nConfusion matrix:")
+    print("(Rows = actual label, Columns = predicted label)")
+    print("(Numbers off the diagonal = where the model got confused)\n")
+    cm = confusion_matrix(true_labels, pred_labels, labels=all_labels)
+    col_width = max(len(l) for l in all_labels) + 2
+    header = " " * (col_width + 2) + "  ".join(f"{l[:8]:>8}" for l in all_labels)
+    print(header)
+    for i, row in enumerate(cm):
+        row_str = f"{all_labels[i]:<{col_width}}  " + "  ".join(f"{v:>8}" for v in row)
+        print(row_str)
 
     # Mistakes
     mistakes = [
@@ -97,16 +117,18 @@ def main():
         for text, true, pred in zip(texts, true_labels, pred_labels)
         if true != pred
     ]
-    print(f"\nMistakes: {len(mistakes)}/{total}")
+    print(f"\nMistakes ({len(mistakes)}/{total}):")
     for text, true, pred in mistakes[:10]:
-        print(f"\n  Text:      {text[:80]}")
+        print(f"\n  Text:      {text[:90]}")
         print(f"  Actual:    {true}")
         print(f"  Predicted: {pred}")
+    if len(mistakes) > 10:
+        print(f"\n  ... and {len(mistakes) - 10} more")
 
     print("\n=== Done ===")
-    if accuracy > 0.85:
-        print("Score looks good — but check how many examples are in each category above.")
-        print("A high score with 2 examples per label means almost nothing.")
+    if accuracy > 0.85 and total < 30:
+        print("Score looks high — but with fewer than 30 examples, it may not mean much.")
+        print("Check per-label counts above.")
 
 
 if __name__ == "__main__":
