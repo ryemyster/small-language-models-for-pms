@@ -120,6 +120,12 @@ An accuracy number without knowing where those examples came from and how they w
 
 This is the exact pattern that causes teams to ship models that look fine in testing and fail on real data. The test was too easy, too close to training, or didn't cover the hard cases.
 
+**The stakeholder consequence:** Every decision made downstream of an accuracy number — whether to ship, how much engineering to invest, what to put on the roadmap — is only as trustworthy as the eval that produced it. An 85% from a bad eval presented to leadership is not a conservative number being cautiously interpreted. It's a misleading number that will produce confident bad decisions. The eval is not a technical artifact. It's the evidence base for product decisions.
+
+**The tradeoff:** Building a thorough eval takes time before you start tuning. It's tempting to skip it and go straight to improving the model. The cost of skipping is that you tune blindly — you don't know if a change actually helped, hurt a specific category, or did nothing. The upfront investment in a real eval set pays back every time you retrain. This is the same tradeoff as skipping user research to ship faster: you move quicker in the short term and slower for every decision after that.
+
+**The missing-category problem as a PM pattern:** If `praise` isn't in your eval, you don't know whether the model handles it. That's the same as not tracking a metric you care about. PMs who don't measure `onboarding_friction` separately from `bug_report` routinely underestimate how much of their inbox is an onboarding problem — because it all gets lumped together. Not measuring something doesn't mean it isn't happening. It means you can't see it.
+
 ---
 
 ## What comes next

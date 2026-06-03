@@ -68,6 +68,8 @@ The script loads your 163 labeled examples and splits them into two groups:
 
 This 80/20 split is automatic and random. It's a reasonable starting point, but it's also a temporary measurement tool — in Chapter 05 you'll build a fixed eval set that gives you a more reliable number. For now, the test set tells you roughly where you stand.
 
+**The limitation you should know:** With 163 examples, holding back 20% gives you a test set of 33 rows. That's not enough to detect a systematic weakness in a single label — if the model gets all 6 `onboarding_friction` test examples right by luck, it looks fine on that category even if it would fail on 30% of real inbox tickets. The 80/20 split is a sanity check, not a verdict. Don't make product decisions based on it.
+
 ---
 
 ### Step 3: Tokenizing and fine-tuning
@@ -92,6 +94,8 @@ After each pass, it checks its accuracy on the test set. You'll see these number
 ```
 
 Loss going down and accuracy going up means the model is learning. If both numbers plateau early or accuracy stays low, your data quality or label definitions may need attention — that's a signal to look at, not a failure.
+
+**The iteration velocity tradeoff:** Each training run takes 15–30 minutes on a laptop CPU. That means roughly 6–8 experiments per day if you're actively tuning. If you need faster iteration — to test more data combinations or label changes — you have two options: rent a GPU (faster training, real cost) or use a smaller base model (faster but potentially lower accuracy ceiling). For this tutorial, the laptop CPU is fine. For a production workflow where you retrain weekly, iteration speed becomes a real product constraint worth planning around.
 
 ---
 
@@ -126,6 +130,8 @@ Here's the important thing: **this number is not a verdict.**
 An 85% accuracy on 33 test examples means the model got 28 right and 5 wrong. That's not enough data to know whether those 5 mistakes are a fluke or a systematic problem. It doesn't tell you which categories are weak. It doesn't tell you whether the model would hold up on the real Monday-morning inbox — 340 tickets it's never seen, including weird phrasings, sarcasm, and messages that straddle two categories.
 
 The baseline gives you a starting point, not a finish line. That's its only job.
+
+**How to present this to a stakeholder:** When someone asks "is the model ready to use?", the baseline number alone isn't the answer. The honest answer is: "It's classifying about 80% of test examples correctly, but that test set is only 33 examples randomly pulled from our training pool. I need to run it against a proper held-out eval before I can tell you whether it's ready — and even then, the right question is which categories it gets wrong and whether those failures are acceptable for our use case." Chapter 05 gives you what you need to answer that properly.
 
 In Chapter 04, you'll see exactly why a high accuracy score can still mean a model you shouldn't trust. In Chapter 05, you'll build the eval that actually tells you whether it's ready.
 

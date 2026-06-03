@@ -114,14 +114,14 @@ Evaluation is not an appendix here. You'll build a fixed eval suite before you t
 | Chapter | What you'll do |
 |---------|----------------|
 | 01 | Understand the problem — this page |
-| 02 | Label your first training examples |
-| 03 | Train a first rough model — it won't be good yet |
-| 04 | See why a high accuracy score can still mean a bad model |
-| 05 | Build a fixed eval suite you'll use for every future run |
-| 06 | Tune the model deliberately, one change at a time |
-| 07 | Serve the model as a local endpoint and call it from TypeScript |
-| 08 | Optional: store results with embeddings and Supabase |
-| 09 | Adapt this for your own use case |
+| [02 — Labels and training data](docs/02-labels-and-training-data.md) | Turn your five questions into labeled examples the model can study |
+| [03 — Train a baseline](docs/03-train-baseline.md) | Run your first training pass and understand what the output means |
+| [04 — Why accuracy lies](docs/04-why-accuracy-lies.md) | See how a good-looking score can still mean a bad model |
+| [05 — Build a fixed eval suite](docs/05-fixed-eval.md) | Create the trustworthy, repeatable test that anchors everything else |
+| 06 — Tune deliberately | Improve the weak categories, one change at a time |
+| 07 — Serve the model | Load the artifact into a TypeScript endpoint and call it like any API |
+| 08 — Optional: embeddings + storage | Store classified results with vectors for semantic search |
+| 09 — Make it your own | Adapt the full pipeline for your own use case |
 
 Start with [docs/getting_started.md](docs/getting_started.md) to set up your environment before chapter 02.
 
