@@ -10,13 +10,10 @@
     "start": "tsx src/server.ts",
     "classify": "tsx src/classify.ts",
     "compare": "tsx src/compare.ts",
-    "store": "tsx src/store.ts",
-    "search": "tsx src/search.ts",
     "clean": "rm -rf node_modules training/model training/**/__pycache__ **/__pycache__ **/*.pyc"
   },
   "dependencies": {
-    "express": "^4.19.2",
-    "@supabase/supabase-js": "^2.45.0"
+    "express": "^4.19.2"
   },
   "devDependencies": {
     "tsx": "^4.11.0",

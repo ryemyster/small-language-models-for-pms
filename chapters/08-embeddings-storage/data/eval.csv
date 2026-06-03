@@ -1,0 +1,101 @@
+text,label
+"Getting a TypeError: Cannot read properties of undefined when I open any report created before March. New reports work fine.",bug_report
+"The weekly digest email stopped arriving three weeks ago. Confirmed my email address is correct.",bug_report
+"Permissions aren't saving — I set a team member to read-only and they can still edit.",bug_report
+"The date range filter on the analytics page is ignoring the end date. Always pulls data through today.",bug_report
+"Login via Google SSO redirects to a 404 after the OAuth handshake.",bug_report
+"File previews stopped rendering. Just shows a blank rectangle where the thumbnail should be.",bug_report
+"The mobile app is not syncing changes made on desktop. Logged out and back in. Still out of sync.",bug_report
+"Dashboard widgets load in the wrong order every time — the layout resets on refresh.",bug_report
+"I exported a CSV with 800 rows. The file has 800 rows but the last 200 are all blank.",bug_report
+"The in-app search is indexing deleted items. Searching for a project name shows results we removed months ago.",bug_report
+"Webhook events stopped firing after the v2.1 release. Our Zapier automation is broken.",bug_report
+"The API rate limit counter resets at unpredictable intervals — we're hitting limits well below the documented threshold.",bug_report
+"Table view column widths reset every session. I resize them, refresh, they go back to default.",bug_report
+"Two team members are seeing different data on the same report. Same filters, same date range.",bug_report
+"Clicking 'Save' on a form produces a spinner that never resolves. Data isn't saved.",bug_report
+"The billing portal shows my card as expired but the card doesn't expire until next year.",bug_report
+"Archive function marks items as archived but they still appear in search and list views.",bug_report
+"The onboarding checklist shows step 3 as incomplete — I've done it four times.",bug_report
+"Audio on recorded walkthrough videos stopped working after the player update.",bug_report
+"Push notifications on iOS are arriving 4–6 hours late.",bug_report
+"Would really love the ability to set a default view per project — I switch back to table view every single time I open one.",feature_request
+"Please add role-based permissions at the project level, not just workspace-wide.",feature_request
+"An integration with HubSpot would be a game changer for our sales team.",feature_request
+"Can we get a way to export charts as images, not just as part of a PDF report?",feature_request
+"I'd love a digest of changes made by my team since I was last active — like a 'catch me up' view.",feature_request
+"Please add the ability to @mention teammates in comments and have them notified.",feature_request
+"A Gantt chart view would let us retire another tool we currently pay for.",feature_request
+"It would help to have conditional logic in forms — show field B only if field A equals X.",feature_request
+"We need an audit log showing who changed what and when. Essential for our compliance requirements.",feature_request
+"Please let me set a custom domain for client-facing reports. Right now the URL shows your branding.",feature_request
+"Two-way sync with Google Calendar would make this the only tool I need for planning.",feature_request
+"I want to be able to lock a report so colleagues can't accidentally edit it.",feature_request
+"API access should be available on the Growth plan, not just Enterprise. Blocks us from building integrations.",feature_request
+"A keyboard shortcut to jump between projects would save me a lot of time.",feature_request
+"Please add a way to mark a task as 'blocked by' another task and show that dependency visually.",feature_request
+"Bulk status updates — select multiple items and change their status at once.",feature_request
+"I'd love a view that shows all tasks assigned to me across every project in one place.",feature_request
+"An in-app timer I can start per task would replace the time-tracker I'm currently running in a separate tab.",feature_request
+"We'd pay more for a white-label version. Our clients shouldn't see your logo.",feature_request
+"Please add support for markdown in comments. Plain text is limiting for technical notes.",feature_request
+"We're a team of 3. The starter plan only allows 2 seats. We have to go to Pro just for one extra person.",pricing_concern
+"4/10 on NPS — the product genuinely solves our problem but the annual pricing requires board approval at our org size. Monthly billing would help.",pricing_concern
+"The feature we actually need — API access — is gated behind the Enterprise tier. No pricing is listed for Enterprise. That's frustrating.",pricing_concern
+"I signed up for the trial and was automatically enrolled in the paid plan at the end with no confirmation email.",pricing_concern
+"Our contract is up for renewal and the rate increased 30% with 2 weeks notice. That's not enough time to get budget approval.",pricing_concern
+"Storage limits on the basic plan are too low for our use case but the jump to the next tier is 3x the price.",pricing_concern
+"CS note: customer wants to downgrade but the feature they rely on daily is only on Pro. They're stuck.",pricing_concern
+"Please publish your pricing. I've been on three calls with your sales team and still don't have a number.",pricing_concern
+"I'm a freelancer working with three clients. Per-seat pricing means I'd need three licenses for essentially one user.",pricing_concern
+"The add-on for advanced reporting costs more per month than our base plan. It should be included.",pricing_concern
+"We had to cancel two seats when we downsized. The refund process took 6 weeks.",pricing_concern
+"Your educational discount requires a .edu email. We're an accredited training organisation with a .com domain. No flexibility offered.",pricing_concern
+"I upgraded to annual billing to get the discount. Two weeks later you announced a new plan at a lower price point. No option to move.",pricing_concern
+"Getting charged for guest users who can only view, not edit. Guests shouldn't count as full seats.",pricing_concern
+"The trial lets you use all features but the moment you pay you discover your tier doesn't include half of them.",pricing_concern
+"We asked about volume pricing for 50 seats. Took 3 weeks and four emails to get a response.",pricing_concern
+"Startup discount programme requires a referral from a VC. Most early-stage founders don't have that.",pricing_concern
+"I was mid-trial and got a 'your trial expires in 1 hour' email with no option to extend.",pricing_concern
+"The per-workspace pricing model punishes agencies. We manage 20 client accounts — that's 20 workspaces at full price each.",pricing_concern
+"Invoice says 'subscription fee' with no itemisation. Our finance team needs line items to process it.",pricing_concern
+"Signed up three weeks ago. Watched the intro video. Still not sure what I'm supposed to do first.",onboarding_friction
+"The 'quick start' guide has 14 steps. That's not quick.",onboarding_friction
+"I set up everything the documentation said and got a blank dashboard with no explanation of what to do next.",onboarding_friction
+"The product tour auto-plays every time I log in and I can't find the setting to turn it off.",onboarding_friction
+"I'm trying to import data from Airtable. The help article says to use the import wizard but there's no import wizard in my account.",onboarding_friction
+"Invited two colleagues. They accepted the invite but landed in a different workspace than mine.",onboarding_friction
+"The terminology is inconsistent — the help docs say 'projects' but the UI says 'boards'. Same thing, different word, took me 30 minutes to figure out.",onboarding_friction
+"There's no sample data I can explore to understand how the product works before committing real data.",onboarding_friction
+"Setup required me to connect a data source before I could see the product. I don't have one ready. Got stuck immediately.",onboarding_friction
+"The first email after signup linked to a getting started video. The video is for a version of the product that looks nothing like what I see.",onboarding_friction
+"I'm on Windows and the keyboard shortcuts in the docs are all Mac shortcuts. No Windows equivalent listed.",onboarding_friction
+"Two hours in and I still can't get my data to display in the format I need. The documentation doesn't cover my case.",onboarding_friction
+"The mobile app onboarding is completely different from desktop. I set things up on my phone and nothing carried over.",onboarding_friction
+"I asked the in-app chat a setup question and got a link to a help article that's marked 'last updated 2022'.",onboarding_friction
+"The error message on the import screen says 'invalid format' with no explanation of what format is valid.",onboarding_friction
+"I completed onboarding and still got the onboarding checklist prompting me to do steps I'd already done.",onboarding_friction
+"The free trial has a feature flag that hides the exact features I need to evaluate. Makes the trial useless.",onboarding_friction
+"There's no way to test with sample data. I had to put in real data just to see how the tool works.",onboarding_friction
+"Getting started doc says 'click the setup button' — there is no setup button anywhere on my screen.",onboarding_friction
+"I've been using the product for a week and I'm still not sure I set it up correctly. No validation or confirmation anywhere.",onboarding_friction
+"We moved our entire team onto this platform six months ago. Reporting alone has saved us half a day every week.",praise
+"10/10. I've recommended this to everyone in my network who runs a product team.",praise
+"The changelog is the most honest I've read from any software company. You acknowledge when things didn't go as planned.",praise
+"Our customer success rep went above and beyond during our migration. We're customers for life.",praise
+"5 stars — I evaluated 8 tools before this one. None of the others did what they promised. This one does.",praise
+"Response from support in 8 minutes on a Saturday. Genuinely shocked.",praise
+"The product is thoughtfully designed. Every workflow I try to do is either already there or one feature request away.",praise
+"I've been in SaaS for 15 years. This is the first time I've been excited about a productivity tool.",praise
+"You shipped a feature I requested in a public roadmap comment. Nobody does that.",praise
+"The privacy controls are clear and honest. I actually read them and they say what I expected. That's rare.",praise
+"The import wizard handled our messy legacy data better than we expected. Saved us a week of cleanup.",praise
+"We cancelled a $600/month contract with a competitor after switching to this. Better product, lower price.",praise
+"The accessibility features are excellent. We have a team member with low vision and this is the first tool that works for them.",praise
+"Your incident communications are fast and honest. When things broke last month you told us exactly what happened.",praise
+"I can't believe this is the price point. Feels like we're getting away with something.",praise
+"Three months in, our team's weekly status meetings are half as long because everyone can see the data themselves.",praise
+"The keyboard shortcut implementation is the best I've seen in any web app. Feels like a native desktop app.",praise
+"I don't write reviews but I had to for this one. Switched from a tool I'd used for 4 years and have zero regrets.",praise
+"Support team actually reads bug reports and responds with technical detail. Not just 'we'll look into it'.",praise
+"You've turned a process that used to take our team 3 days into a 20-minute task. Remarkable.",praise

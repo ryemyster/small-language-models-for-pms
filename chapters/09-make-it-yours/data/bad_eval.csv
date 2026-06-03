@@ -1,0 +1,21 @@
+text,label
+"The app crashes every time I try to export a report to PDF.",bug_report
+"Hi Support, I'm getting a 500 error every time I try to export a report to PDF. Started yesterday after the update. Happens on Chrome and Safari.",bug_report
+"CSV export producing scrambled column headers since last Tuesday. Every file is unusable.",bug_report
+"the dashboard just went blank. refreshed three times. nothing.",bug_report
+"My account keeps logging me out.",bug_report
+"Something is broken.",bug_report
+"It doesn't work.",bug_report
+"Error.",bug_report
+"Broken.",bug_report
+"Bug.",bug_report
+"It would be great if you could export directly to Google Sheets.",feature_request
+"please add dark mode",feature_request
+"Can you add a Slack integration?",feature_request
+"I want more features.",feature_request
+"Add stuff.",feature_request
+"Your pricing is too high.",pricing_concern
+"Too expensive.",pricing_concern
+"I was billed for a full month even though I cancelled on day two.",pricing_concern
+"I couldn't figure out how to set up my account after I signed up.",onboarding_friction
+"Setup was confusing.",onboarding_friction
