@@ -1,5 +1,7 @@
 # Chapter 02 — Labels and Training Data
 
+> Not sure fine-tuning is the right approach for your use case? Read [When SLMs make sense](when-slms-make-sense.md) before diving in.
+
 ## Before you start
 
 **Your working folder for this chapter:** `chapters/02-labels-and-data/`

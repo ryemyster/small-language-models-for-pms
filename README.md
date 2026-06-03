@@ -39,7 +39,7 @@ Each chapter picks up where the last one left off. Don't skip ahead — the stor
 
 | Chapter | What you'll do | Time |
 |---------|----------------|------|
-| [01 — Why an SLM?](#why-an-slm-not-chatgpt) | Understand why a small trained model beats a general LLM for this job | 10 min read |
+| [01 — Why an SLM?](docs/when-slms-make-sense.md) | Understand why a small trained model beats a general LLM for this job | 10 min read |
 | [02 — Labels and training data](docs/02-labels-and-training-data.md) | Turn your five questions into labeled examples the model can study | 20 min |
 | [03 — Train a baseline](docs/03-train-baseline.md) | Run your first training pass and read the output | 30 min (15–20 min waiting) |
 | [04 — Why accuracy lies](docs/04-why-accuracy-lies.md) | See how a good-looking score can still mean a bad model | 15 min |
@@ -118,6 +118,8 @@ A small model (~250MB) you train on your own labeled examples. After training, i
 - Regularly, high volume, or data must stay local → fine-tuned SLM
 
 This tutorial builds the third option and compares it directly against a local LLM so you can see the tradeoffs in practice, not just on paper.
+
+→ [When SLMs make sense](docs/when-slms-make-sense.md) — the full one-page decision rule, with worked examples
 
 ---
 
