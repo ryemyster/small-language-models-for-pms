@@ -7,11 +7,23 @@ This script does four things:
   3. Fine-tunes the model on that data
   4. Evaluates how well it performs and saves it for use
 
-Run it with: python training/train.py
+Run it with: python3 training/train.py
 Expected time: 15–30 minutes on a laptop CPU. No GPU required.
 """
 
+import sys
 import os
+
+# Preflight: check for accelerate, which HuggingFace Trainer requires.
+# If this fails, run: pip install -r requirements.txt
+try:
+    import accelerate  # noqa: F401
+except ImportError:
+    print("\n[ERROR] The 'accelerate' package is missing.")
+    print("  Fix: pip install -r requirements.txt")
+    print("  Then run this script again.\n")
+    sys.exit(1)
+
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report, confusion_matrix
@@ -231,4 +243,9 @@ else:
 
 print("\n=== Done ===")
 print(f"Model saved to: {OUTPUT_DIR}/")
-print("Next step: start the classifier server with: npm run start")
+print("")
+print("These numbers are your baseline — the first rough draft.")
+print("Don't ship based on them. Chapter 04 explains why a good-looking score")
+print("can still mean a bad model. Chapter 05 builds the eval that actually tells you the truth.")
+print("")
+print("Next: open docs/04-why-accuracy-lies.md")
