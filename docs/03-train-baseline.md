@@ -70,6 +70,8 @@ This 80/20 split is automatic and random. It's a reasonable starting point, but 
 
 **The limitation you should know:** With 163 examples, holding back 20% gives you a test set of 33 rows. That's not enough to detect a systematic weakness in a single label — if the model gets all 6 `onboarding_friction` test examples right by luck, it looks fine on that category even if it would fail on 30% of real inbox tickets. The 80/20 split is a sanity check, not a verdict. Don't make product decisions based on it.
 
+**What accuracy means for your customers:** At 340 tickets per Monday, an 80% accuracy rate means roughly 68 tickets get the wrong label every week. A `pricing_concern` labeled as `praise` never reaches the PM who could flag it to the pricing team. A `bug_report` filed as `feature_request` sits in the wrong queue while real users are hitting a broken product. A churning customer who wrote detailed feedback about why they're leaving gets routed to the wrong pile and never read by anyone who could act on it. Accuracy isn't an abstract number — it's a direct measure of how reliably your customers' problems reach the people who can fix them.
+
 ---
 
 ### Step 3: Tokenizing and fine-tuning

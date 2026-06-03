@@ -126,6 +126,8 @@ This is the exact pattern that causes teams to ship models that look fine in tes
 
 **The missing-category problem as a PM pattern:** If `praise` isn't in your eval, you don't know whether the model handles it. That's the same as not tracking a metric you care about. PMs who don't measure `onboarding_friction` separately from `bug_report` routinely underestimate how much of their inbox is an onboarding problem — because it all gets lumped together. Not measuring something doesn't mean it isn't happening. It means you can't see it.
 
+**The customer impact of a bad eval:** A model that passes a flawed eval gets shipped. It mislabels tickets at the same rate as an untested model — you just don't know it yet. The PM's five Monday-morning questions get answered with corrupted data. The team focuses on the wrong problems. Customers who took the time to write detailed, specific feedback find that nothing changes — not because the team didn't care, but because the feedback was routed to the wrong pile by a model that looked fine on paper. The bad eval doesn't just hurt your measurement. It breaks the feedback loop between your customers and your product team.
+
 ---
 
 ## What comes next

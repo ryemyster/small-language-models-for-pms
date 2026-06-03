@@ -237,6 +237,8 @@ The mental model is identical: define what "good" looks like, measure it consist
 
 Once you've internalised the eval loop, you can apply it to any model you build — for any use case, in any company.
 
+**The customer impact of skipping production evals:** When a model degrades silently, the customer experience degrades with it. A pricing complaint that your model used to catch correctly gets mislabeled as `feature_request` after a product update introduces new pricing language the model has never seen. The pricing team stops hearing about a growing problem. Customers raise it repeatedly and see no response. From their side, it looks like the company isn't listening — when in reality, the signal is being lost in the classification layer before it ever reaches a human. Production evals are how you catch that before your customers feel it.
+
 ### Where this gets built
 
 The tutorial covers the development-time eval loop through Chapter 07. Production monitoring — how to sample real output, track label distribution over time, and know when to retrain — is covered in Chapter 09, the adapt-this-template capstone. If you're deploying this for real before you finish the tutorial, the short version is: sample 50 tickets monthly, label them yourself, run `score_eval.py`, look at F1 by label.
