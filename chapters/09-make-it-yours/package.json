@@ -1,0 +1,27 @@
+{
+  "name": "small-language-models-for-pms",
+  "version": "0.1.0",
+  "description": "Build a small language model as a PM — hands-on tutorial, no ML background required.",
+  "license": "Apache-2.0",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "scripts": {
+    "start": "tsx src/server.ts",
+    "classify": "tsx src/classify.ts",
+    "compare": "tsx src/compare.ts",
+    "store": "tsx src/store.ts",
+    "search": "tsx src/search.ts",
+    "clean": "rm -rf node_modules training/model training/**/__pycache__ **/__pycache__ **/*.pyc"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "@supabase/supabase-js": "^2.45.0"
+  },
+  "devDependencies": {
+    "tsx": "^4.11.0",
+    "@types/express": "^4.17.21",
+    "@types/node": "^20.0.0",
+    "typescript": "^5.4.0"
+  }
+}

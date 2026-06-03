@@ -191,13 +191,16 @@ success
 
 ## You're ready
 
-Run this to confirm everything is in place:
+Run these commands to confirm everything is in place:
 
-```
-/check-env
+```bash
+python3 --version        # should show Python 3.10 or higher
+node --version           # should show v20 or higher
+ollama list              # should respond without error
+python3 -c "import transformers, datasets, sklearn, pandas, accelerate, torch; print('Python deps OK')"
 ```
 
-All checks should show `[PASS]`. If any show `[FAIL]`, the output will tell you exactly what to fix.
+If the last command prints `Python deps OK`, all training dependencies are installed.
 
 Once everything passes, go back to the [README](../README.md) and follow the run steps from the top.
 
@@ -209,7 +212,7 @@ Common issues:
 
 **"command not found" for python3** — Python isn't installed or isn't on your PATH. Reinstall from python.org, and on Windows make sure "Add Python to PATH" is checked.
 
-**"permission denied"** — On Mac, try adding `sudo` before the command (e.g., `sudo pip install ...`). You'll be asked for your computer password.
+**"permission denied" on pip install** — Make sure your virtual environment is active. You should see `(.venv)` at the start of your terminal prompt before running `pip install`. If it's not there, run `source .venv/bin/activate` (Mac/Linux) or `.venv\Scripts\activate` (Windows). Never use `sudo pip install` — it installs packages globally and can break other things on your machine.
 
 **pip install fails with a long error** — Copy the last line of the error and search it. These are usually specific package conflicts. The most common fix is `pip install --upgrade pip` then try again.
 
