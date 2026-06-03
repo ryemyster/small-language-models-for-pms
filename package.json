@@ -9,7 +9,8 @@
   "scripts": {
     "start": "tsx src/server.ts",
     "classify": "tsx src/classify.ts",
-    "compare": "tsx src/compare.ts"
+    "compare": "tsx src/compare.ts",
+    "clean": "rm -rf node_modules training/model training/**/__pycache__ **/__pycache__ **/*.pyc"
   },
   "dependencies": {
     "express": "^4.19.2"
