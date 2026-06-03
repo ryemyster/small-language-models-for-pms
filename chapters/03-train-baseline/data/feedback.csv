@@ -1,0 +1,164 @@
+text,label
+"Hi Support, I'm getting a 500 error every time I try to export a report to PDF. Started yesterday after the update. Happens on Chrome and Safari.",bug_report
+the dashboard just went blank. refreshed three times. nothing.,bug_report
+2 stars — app crashes constantly on iPhone 15. Loses my work every time.,bug_report
+Submitting this via Zendesk because the in-app help chat isn't loading either. The notifications badge shows 12 unread but there are no messages when I open it.,bug_report
+CSV export producing scrambled column headers since last Tuesday. Every file is unusable.,bug_report
+API returning 401 with a valid token. Double-checked the auth headers. This broke sometime in the last 24 hours.,bug_report
+my saved filters disappear every time i refresh the page?? this has been happening for a week,bug_report
+"Charts are showing last week's numbers. I've cleared cache, tried incognito, still wrong data.",bug_report
+The search bar returns nothing even when I type an exact project name. Search is completely broken for me.,bug_report
+Bulk delete says 'success' but nothing actually gets deleted. Tried on three different projects.,bug_report
+Two-factor codes aren't being accepted. I've confirmed the time sync on my authenticator app. Still locked out.,bug_report
+Getting a CORS error when calling the API from our internal tool. Token is valid. Endpoint: /api/v2/reports.,bug_report
+the undo button is deleting things i didn't undo?? it went back like 4 steps when i only clicked once,bug_report
+Password reset link expired before I could use it. I'm on mobile and it takes me more than 10 minutes to get back to a laptop.,bug_report
+Exporting more than 500 rows silently fails. No error message. Just an empty file.,bug_report
+Dark mode isn't applied to the settings screens — they stay light even with dark mode on everywhere else.,bug_report
+The autocomplete in the search field is pulling up results from a different team's workspace. That's a data leak.,bug_report
+sorting by date shows oldest first even when i pick newest. completely backwards.,bug_report
+The in-app chat widget disappears when I resize the browser window below 1200px.,bug_report
+"I accidentally deleted a project. No confirmation dialog, no undo, no recovery. It's just gone.",bug_report
+Integrations page takes 45+ seconds to load. The rest of the app is fine.,bug_report
+Comment field cuts off at 140 characters with no warning. Lost a long note because of this.,bug_report
+The onboarding checklist still shows incomplete even though I finished every step three days ago.,bug_report
+Invite link shows as active in my dashboard but my colleague says it expired when she clicked it.,bug_report
+I'm being charged twice for the same subscription. Two identical line items on my latest invoice.,bug_report
+Map view on mobile won't zoom in past a certain level. Makes it unusable on phone.,bug_report
+"Keyboard shortcuts stopped working after the update last Thursday. Cmd+K, Cmd+S — all dead.",bug_report
+Search results don't include anything created in the last 24 hours. Real-time indexing seems broken.,bug_report
+Progress bar gets stuck at 90% on file uploads. Files do eventually upload but the UI just hangs.,bug_report
+Notification count badge doesn't update unless I hard-refresh. Always showing stale numbers.,bug_report
+The billing page throws an error when I try to update my payment method. Error: 'Payment method update failed.',bug_report
+Date picker is showing the wrong month when I open it — shows March when it's June.,bug_report
+The mobile app froze while scrolling through the activity feed. Had to force-quit.,bug_report
+Customer reported via email: their transaction history is showing duplicate entries going back two weeks.,bug_report
+"images arent uploading. spinning loader just runs forever. tried jpg and png, both fail.",bug_report
+The tooltip on the main analytics graph is cut off on any screen below 1440px wide.,bug_report
+Filter dropdowns reset to default every time I navigate to a different page.,bug_report
+Exporting a report takes over 3 minutes now. Used to be instant. Nothing changed on our end.,bug_report
+The undo function removes more than one action at a time. Undid 4 changes when I only wanted to undo 1.,bug_report
+email confirmation never arrived even after resending 3 times. checked spam. not there.,bug_report
+It would be amazing if you could export directly to Google Sheets. Right now I have to download CSV and import manually every time.,feature_request
+please add dark mode. my eyes are dying using this thing at 9pm,feature_request
+4 stars — great tool but no Android app is a dealbreaker for half my team.,feature_request
+Bulk edit would save us hours. We have 200+ records to update and have to do each one individually.,feature_request
+On a call with a prospect today — they specifically asked if we have Jira two-way sync. We don't. Worth prioritising.,feature_request
+I'd love a way to pin my most-used reports to the top of the dashboard instead of scrolling to find them.,feature_request
+Can you add recurring tasks? Right now everything is one-off and I have to manually recreate the same tasks weekly.,feature_request
+A Slack integration would be huge. Right now I have to check the app manually for updates.,feature_request
+Scheduling reports to send automatically each Monday would replace a whole step in my weekly process.,feature_request
+Read-only shareable view for stakeholders who aren't on the plan. I keep having to export PDFs manually.,feature_request
+Customer asked on today's QBR if we support SAML SSO. Their IT team is blocking the rollout until we do.,feature_request
+would love webhook support so i can hook this into zapier when a status changes,feature_request
+Custom fields please. I need to track things specific to my workflow that aren't in the default setup.,feature_request
+I need to be able to set different notification preferences per project. Global settings don't work for how our team is structured.,feature_request
+Please let me reorder columns in the table view. Fixed column order makes no sense for my workflow.,feature_request
+A calendar view for tasks would change everything. The list view makes it impossible to see my week at a glance.,feature_request
+Can you add version history for documents? I need to see what changed and when.,feature_request
+Time tracking built in would replace a separate tool we're paying for. Would consolidate our stack.,feature_request
+Please add a way to archive clients without deleting them. I need the history but not the clutter.,feature_request
+An AI summary of the week's activity would save me an hour of manual reporting every Friday.,feature_request
+CSV import would let me bring in data from my old tool. Right now migration is completely manual.,feature_request
+I want to set permissions so some team members can view reports but not edit them.,feature_request
+offline mode please — i work on planes and lose access to everything mid-flight,feature_request
+Duplicate project with settings would save so much time. Right now I rebuild from scratch every time.,feature_request
+Please support purchase orders for billing. Our finance team won't approve a credit card subscription.,feature_request
+A template library would be incredible. Same setup process every new client.,feature_request
+Can you add a compare view — this month vs last month in the same chart?,feature_request
+Multi-currency support on the billing dashboard. We have clients in 3 countries.,feature_request
+please add an undo button for bulk operations. i deleted the wrong batch and there was no way back.,feature_request
+Comment threads on each item would keep our team in context instead of jumping to Slack.,feature_request
+"Search across all projects at once, not just the current one. Basic functionality that's missing.",feature_request
+Embedding a live report into Notion would make my weekly updates so much faster.,feature_request
+Would love a changelog inside the product so I know what you've shipped without checking Twitter.,feature_request
+filter by assignee across all projects simultaneously. huge gap for team leads.,feature_request
+Your pricing is too high for a two-person startup. We're paying for the team tier but it's just us.,pricing_concern
+3/10 on NPS. Product is genuinely good but we're a nonprofit and the pricing isn't sustainable. Reviewing alternatives at renewal.,pricing_concern
+The price doubled when we added our third user. I wasn't expecting a jump that steep.,pricing_concern
+We're being charged for 5 seats. We need 2. The minimum seat count forces us to overpay every month.,pricing_concern
+Competitors are offering the same core features at half the price. Actively evaluating right now.,pricing_concern
+Upgraded us mid-cycle and charged the full amount. No proration. That's not how SaaS billing should work.,pricing_concern
+I don't understand what Pro gets me that Basic doesn't. The pricing page doesn't explain the difference.,pricing_concern
+No free tier anymore. That was what got us in the door. Now we have to pay before we see any value.,pricing_concern
+"Churn risk flagged on this account: they're on legacy pricing and just got an auto-renewal notice with the new rate. 40% increase, no notice.",pricing_concern
+7-day trial isn't enough for a team to evaluate a B2B tool. We need at least 30 days.,pricing_concern
+We need to pay by invoice and PO. There's no way to do that without going through sales.,pricing_concern
+I got charged a setup fee that wasn't mentioned on the pricing page or during checkout.,pricing_concern
+Your add-ons are priced individually at more than the plan upgrade. The bundling makes no sense.,pricing_concern
+Legacy plan customers got no notice about the price increase next month. Found out from the invoice.,pricing_concern
+We're a school district — do you have education pricing? The standard rate is out of scope for our budget.,pricing_concern
+There's a huge gap between Basic and Pro. I need something in between — I don't need everything in Pro.,pricing_concern
+Per-seat model doesn't work for our team. We have 30 occasional users and 3 power users. Usage-based would make more sense.,pricing_concern
+can't find any pricing info without signing up first. that's a red flag before I've even tried the product.,pricing_concern
+I had to talk to three different people before getting a quote for the enterprise plan. Just let me self-serve.,pricing_concern
+Your free plan is so limited it feels like a bait-and-switch. Almost nothing actually works on it.,pricing_concern
+We'd commit to a two-year contract if the discount was meaningful. 5% doesn't move the needle.,pricing_concern
+I'm on the pro plan and the API limit I hit is apparently only available on enterprise. That should've been disclosed.,pricing_concern
+The invoice format makes it impossible to get reimbursed through our finance team. Need itemized line items.,pricing_concern
+Are there discounts for early-stage startups? We're pre-revenue and can't justify the current rate.,pricing_concern
+"Per-seat pricing goes up at a usage threshold, not when we add users. That's not how we understood it when we signed up.",pricing_concern
+pricing page hasn't been updated — lists features that don't match what's actually in the product right now,pricing_concern
+we'd love to stay but at renewal the math just doesn't work anymore. reached out to see if there's anything you can do.,pricing_concern
+got billed for a full month after cancelling on day 2. asked for a refund and was told that's the policy.,pricing_concern
+"The enterprise tier requires a sales call just to see pricing. We want to buy, not be sold to.",pricing_concern
+I couldn't figure out how to set up my account after I signed up. The welcome email just said 'get started' with no actual steps.,onboarding_friction
+Spent 2 hours trying to connect my data source. The docs are outdated. Screenshots don't match what's in the product.,onboarding_friction
+"3/10 — Signed up, had no idea what to do next, left. Came back a week later after finding a YouTube tutorial. The in-app guidance is missing.",onboarding_friction
+Setup wizard has 7 steps and 4 of them aren't relevant to my use case. No way to skip them.,onboarding_friction
+i created an account and then just stared at the screen for 10 minutes. no idea where to start,onboarding_friction
+"The first screen after signup asked for company size, industry, team structure, and primary use case before I could do anything. Way too much.",onboarding_friction
+I connected my data source and nothing appeared in the dashboard. No error message. No explanation. Just empty.,onboarding_friction
+"Downloaded app, created account, tried to use it, deleted it. 1 star.",onboarding_friction
+The welcome email links to a page that 404s. Not a great first impression.,onboarding_friction
+"I was invited by a colleague. Clicked the link and it sent me to the homepage, not her workspace.",onboarding_friction
+The UI says 'Workspaces' but the documentation says 'Projects.' They're the same thing but it took me 20 minutes to figure that out.,onboarding_friction
+I spent 20 minutes setting up a Salesforce integration only to discover it's not included on my plan.,onboarding_friction
+The free trial started the moment I created my account — before I'd even had a chance to configure anything.,onboarding_friction
+I'm a solo operator. Had to fill in company name and team size just to sign up. Doesn't fit my situation.,onboarding_friction
+Four onboarding emails in two days and they contradict each other on the setup steps.,onboarding_friction
+"There's no guided path for someone brand new. Lots of features, no sense of what to do first.",onboarding_friction
+The sample data from the demo is still in my account. Can't figure out how to remove it.,onboarding_friction
+Account verification email went to spam. By the time I found it the link had expired.,onboarding_friction
+I couldn't find the 'create new project' button. It's hidden in a dropdown I never would have checked.,onboarding_friction
+Mobile app asked me to re-enter everything I'd already set up on desktop. Felt like starting over.,onboarding_friction
+The onboarding checklist has steps that don't apply to me. No way to hide or skip them.,onboarding_friction
+"First-run experience assumes I know what 'segments' and 'dimensions' mean. I don't. No tooltips, no explanations.",onboarding_friction
+I set everything up correctly and saw no data for two hours. Nothing told me why or how long to wait.,onboarding_friction
+Kept getting upgrade prompts during setup before I'd done anything with the basic plan.,onboarding_friction
+"The onboarding told me to watch a 45-minute video. I signed up to use a product, not take a course.",onboarding_friction
+I had to Google how to do the first step because the in-app help didn't answer my question.,onboarding_friction
+The setup guide says to click 'Connect Data Source' but that button doesn't exist on my screen.,onboarding_friction
+Tried to connect via OAuth and got stuck in a loop with no clear way out and no error message.,onboarding_friction
+There's no indication of how long setup takes. I would've blocked out more time if I'd known.,onboarding_friction
+I completed every step of the checklist and still don't feel like I know how to actually use the product.,onboarding_friction
+This is genuinely the best tool I've found for managing feedback across my team. Replaced three separate tools.,praise
+10/10 NPS. Weekly reporting went from 2 hours to 15 minutes. That's the whole reason I pay for software.,praise
+5 stars — actually does what it says. Rare.,praise
+"Your support team is exceptional. Resolved a billing issue with one email, no back and forth.",praise
+I've tried five tools for this workflow. This is the only one that worked.,praise
+The API documentation is the clearest I've read from any vendor. Integrated it in an afternoon.,praise
+Mobile app is just as good as desktop. That almost never happens.,praise
+The new dashboard layout is exactly what we needed. Everything is where I expect it.,praise
+I recommended this to two other teams in my company. Both are now paying customers.,praise
+3 years in and it just keeps getting better. Rare for a SaaS product.,praise
+The keyboard shortcuts are well thought out. Feels like it was built by people who actually use it.,praise
+Permissions system is flexible without being complicated. Every other tool I've tried gets this wrong.,praise
+Loading times are noticeably faster than 6 months ago. Good engineering work.,praise
+The free plan is actually useful. That's how you build trust before asking for money.,praise
+I use this every day. Genuinely the best $40/month I spend.,praise
+Your team shipped a feature I requested within a month. I didn't expect that.,praise
+"Changelog is one of the best I've seen — detailed, honest, and consistently updated.",praise
+Clean UI that I was able to hand to three non-technical colleagues with zero hand-holding.,praise
+The privacy settings are clear and actually match what the product does. That's rarer than it should be.,praise
+CS posted in Slack: customer just sent an email saying they recommended us to two people in their network this week.,praise
+After two years of looking I finally found a tool that fits exactly how I work.,praise
+Status page is accurate and you communicate incidents fast. That builds more trust than most features.,praise
+Left a G2 review but wanted to tell you directly: migration support was exceptional. Made a painful process painless.,praise
+"I had a billing issue and it was resolved with one email. No escalation, no runaround.",praise
+The templates saved me hours on initial setup. Whoever designed those knew the actual use case.,praise
+Product team clearly listens. Three of my suggestions have shipped this year.,praise
+Switched from a competitor 6 months ago. Best decision we made this year.,praise
+the product does one thing and does it well. thank you for not trying to be everything,praise
+9/10 — only reason it's not 10 is we'd love a Slack integration. Everything else is excellent.,praise
+Support response time is faster than tools I pay 5x more for. Really impressive.,praise
