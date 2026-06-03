@@ -16,12 +16,12 @@
  *
  * Run it with: npm run compare
  * (Classifier server must be running: npm run start)
- * (Ollama must be running with llama3: ollama pull llama3)
+ * (Ollama must be running with tinyllama: ollama pull tinyllama)
  */
 
 const CLASSIFIER_URL = "http://localhost:3000/classify";
 const OLLAMA_URL = "http://localhost:11434/api/generate";
-const OLLAMA_MODEL = "llama3";
+const OLLAMA_MODEL = "tinyllama";
 
 // ─────────────────────────────────────────────
 // The 20 test examples — one from each category pattern
@@ -263,7 +263,7 @@ async function main() {
       if (err instanceof Error && err.message.includes("ECONNREFUSED")) {
         console.error("\nCannot connect to Ollama.");
         console.error("Make sure Ollama is running: ollama serve");
-        console.error("And llama3 is installed: ollama pull llama3");
+        console.error("And tinyllama is installed: ollama pull tinyllama");
         process.exit(1);
       }
       ollamaLabel = "error";

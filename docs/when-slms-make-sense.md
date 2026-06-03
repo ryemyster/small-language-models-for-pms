@@ -16,7 +16,7 @@ When people say "train a model", they mean: run that adjustment process on your 
 
 ## Two types of model, two types of task
 
-**A general-purpose local LLM (like Ollama running llama3)** was trained on an enormous amount of text from across the internet. It can answer questions, summarize documents, write code, and have a conversation. It's flexible. It's useful for one-off, open-ended tasks.
+**A general-purpose local LLM (like Ollama running tinyllama)** was trained on an enormous amount of text from across the internet. It can answer questions, summarize documents, write code, and have a conversation. It's flexible. It's useful for one-off, open-ended tasks.
 
 **A fine-tuned small model** starts from a smaller base (something that already understands English) and then gets trained specifically on your labeled examples. It becomes very good at one narrow task. It's fast. It's consistent. It runs on a laptop CPU in under a second per prediction.
 

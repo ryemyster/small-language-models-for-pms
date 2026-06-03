@@ -6,6 +6,54 @@ Set aside about 30 minutes for the initial setup. Training the model takes anoth
 
 ---
 
+## How this tutorial is organized
+
+Before you install anything, read this — it will save you a lot of confusion.
+
+### The repo has two parts
+
+**`docs/`** — The chapter guides. This is where you read the explanations and follow the steps. Start each chapter by opening the matching doc.
+
+**`chapters/`** — A folder of working directories, one per chapter. This is where you run commands and edit files.
+
+They go together. For Chapter 02, you read `docs/02-labels-and-training-data.md` and do the hands-on work inside `chapters/02-labels-and-data/`.
+
+---
+
+### How each chapter folder works
+
+Each `chapters/` folder is self-contained. It already has all the files from the previous chapter's solution, so you can start fresh at any chapter without having completed everything before it.
+
+**Example: starting Chapter 03**
+
+```
+chapters/03-train-baseline/
+  data/
+    feedback.csv        ← 163 labeled examples (Chapter 02's completed work)
+  train.py              ← the training script
+  requirements.txt      ← Python dependencies
+```
+
+You don't need to copy files from Chapter 02. They're already there.
+
+**What's NOT included:** The trained model (`model/` folder). It's too large to store in git. Any chapter that needs a trained model will tell you to run `python3 train.py` first — that generates the `model/` folder in about 20 minutes.
+
+---
+
+### The root project vs. the chapter folders
+
+The **root project** (the main project folder) is the final reference — it has the complete, finished version of everything. If you're curious about what the end state looks like, explore it there.
+
+The **chapter folders** are where you do your work while learning. Each chapter doc tells you exactly which folder to be in and which files to open.
+
+If you ever get confused about where you are, look at your terminal prompt. It should end with the chapter folder name, like:
+
+```
+.../small-language-models-for-pms/chapters/03-train-baseline %
+```
+
+---
+
 ## The fast path: one setup script
 
 Once you've installed Python, Node.js, and Ollama (steps 1–3 below), run this from the project folder and it will handle the rest:
@@ -199,10 +247,10 @@ added 47 packages in 3s
 
 ## Step 7: Pull the Ollama comparison model
 
-This downloads the local language model we'll compare against. It's about 4GB — it will take a few minutes depending on your connection.
+This downloads the local language model we'll compare against in Chapter 07. TinyLlama is small — about 640MB — so it downloads in a minute or two even on a slow connection.
 
 ```
-ollama pull llama3
+ollama pull tinyllama
 ```
 
 You should see a progress bar, then:

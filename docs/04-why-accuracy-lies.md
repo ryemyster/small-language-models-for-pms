@@ -1,63 +1,173 @@
 # Chapter 04 — Why a High Accuracy Score Can Still Mean a Bad Model
 
-Your model just printed a number. Maybe 82%. Maybe 91%. It looked good.
+## Before you start
 
-Here's the problem: that number came from testing the model on 33 randomly chosen examples from the same pool it trained on. It's the equivalent of giving a student a test made of questions from their own study guide. Of course they'll do well.
+**Your working folder for this chapter:** `chapters/04-why-accuracy-lies/`
 
-This chapter shows you three ways that eval score can lie — using a real broken eval dataset you can run yourself. By the end, you'll know what to look for before trusting any accuracy number.
+Open your terminal and navigate there:
+
+```bash
+cd chapters/04-why-accuracy-lies
+```
+
+**✓ Confirm you're in the right place:**
+
+```bash
+ls
+```
+
+You should see:
+
+```
+README.md   data/   requirements.txt   score_eval.py   train.py
+```
+
+```bash
+ls data/
+```
+
+You should see:
+
+```
+bad_eval.csv   feedback.csv
+```
+
+**You need a trained model before you can run anything in this chapter.** Check if it exists:
+
+```bash
+ls model/
+```
+
+**✓ If you see `model.safetensors`**, you're ready. Keep going.
+
+**✗ If you see `No such file or directory`**, run training first:
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate    # Mac/Linux — use .venv\Scripts\activate on Windows
+pip install -r requirements.txt
+python3 train.py
+```
+
+That takes 15–30 minutes. Come back when it says `=== Done ===`.
 
 ---
 
-## The study guide / test analogy
+**What you'll do in this chapter:**
+- Run a deliberately broken eval and see why the score looks fine
+- Spot the three patterns that make an eval misleading
+- Understand what a trustworthy eval actually needs
 
-In Chapter 02, you built a study guide: 163 labeled examples the model trained on. In Chapter 03, you held back 20% of those as a "test set" and measured accuracy against them.
+**What you'll have when you're done:**
+- A clear understanding of why accuracy numbers can lie — and how to catch it
 
-The problem: that test set was drawn from the same pool as the study guide. Some examples were very similar to ones in training. The model may have learned specific phrasings rather than general patterns. And 33 examples isn't enough to surface a systematic weakness — if the model is terrible at classifying Slack-style one-liners, that failure might not even show up in a 33-row sample.
+---
 
-A trustworthy eval needs to be:
+## The problem with the score from Chapter 03
+
+Your model just printed a number. Maybe 82%. Maybe 91%. It looked reasonable.
+
+Here's the problem: that number came from testing the model on 33 randomly chosen examples from the *same pool* it trained on. It's like giving a student a test made from questions on their own study guide. Of course they'll do well.
+
+A trustworthy eval needs three things:
 - **Separate** — never included in training, never seen during fine-tuning
-- **Fixed** — the same set every time you test, so results are comparable
+- **Fixed** — the same set every time you test, so results are comparable across runs
 - **Representative** — covering the full range of your real inbox: different tones, lengths, channel styles, and edge cases
 
 You're building that in Chapter 05. First, you need to see what a bad eval looks like — so you can recognize one when you see it.
 
 ---
 
-## Run the bad eval
+## Open the bad eval file
 
-There's a deliberately flawed eval dataset at `training/data/bad_eval.csv`. Run the scoring script against it:
+**Open `chapters/04-why-accuracy-lies/data/bad_eval.csv` in your text editor.**
+
+Scroll through it. Count the rows. Notice what kinds of text appear. You should feel something is off before you even run it.
+
+Now run it:
 
 ```bash
-python3 training/score_eval.py --eval training/data/bad_eval.csv
+python3 score_eval.py --eval data/bad_eval.csv
 ```
 
-You'll see an accuracy score that looks reasonable — probably above 80%. Then look at the breakdown.
+**✓ You should see output that starts like this:**
+
+```
+=== Scoring against data/bad_eval.csv ===
+
+Overall accuracy: 17/20 = 85%
+```
+
+85%. That looks decent. It isn't. Keep reading.
+
+**✗ If you see `ModuleNotFoundError`**, your virtual environment isn't active. Run:
+
+```bash
+source .venv/bin/activate    # Mac/Linux
+.venv\Scripts\activate       # Windows
+```
+
+Then try again.
+
+---
+
+## Read the full output carefully
+
+After the accuracy line, you'll see per-label results:
+
+```
+                     precision  recall  f1-score  support
+bug_report              0.91    1.00      0.95       10
+feature_request         0.75    1.00      0.86        3
+onboarding_friction     1.00    1.00      1.00        2
+pricing_concern         1.00    0.67      0.80        3
+praise                  0.00    0.00      0.00        0
+
+⚠ 'praise' has only 0 example(s) — score for this label is not reliable
+⚠ 'onboarding_friction' has only 2 example(s) — score for this label is not reliable
+⚠ 'feature_request' has only 3 example(s) — score for this label is not reliable
+⚠ 'pricing_concern' has only 3 example(s) — score for this label is not reliable
+```
+
+Notice the warnings. Four of your five categories are flagged as unreliable. And `praise` has **zero examples** — one of your five Monday-morning questions was never tested at all.
+
+The 85% overall number hides all of this.
 
 ---
 
 ## The three problems in this dataset
 
+Look back at `bad_eval.csv` as you read each problem. You'll be able to spot each one.
+
+---
+
 ### Problem 1: Rows copied from training data
 
-Open `training/data/bad_eval.csv`. The first few rows are:
+**Open both files side by side:**
+- `data/bad_eval.csv`
+- `data/feedback.csv`
+
+Find the first few rows of `bad_eval.csv`:
 
 ```
-"The app crashes every time I try to export a report to PDF." → bug_report
-"Hi Support, I'm getting a 500 error every time I try to export a report to PDF..." → bug_report
-"CSV export producing scrambled column headers since last Tuesday." → bug_report
+"The app crashes every time I try to export a report to PDF."
+"Hi Support, I'm getting a 500 error every time I try to export a report to PDF..."
+"CSV export producing scrambled column headers since last Tuesday."
 ```
 
-These are copied directly from `training/data/feedback.csv`. The model studied them. Getting them right isn't learning — it's memorization. Including training rows in your eval is like letting a student bring their homework to the exam and marking them right when they copy it.
+Now search for those exact phrases in `feedback.csv`.
 
-What this inflates: overall accuracy. The model gets easy points on examples it already knows, which pushes the number up before it even touches a new example.
+You'll find them. These rows were copied directly from training data. The model studied them. Getting them right isn't learning — it's memorization. It's like letting a student bring their homework to the exam and counting it as correct when they copy it.
 
-**The pattern to watch for:** If your eval set overlaps with your training set — even partially — your accuracy number is optimistic. Always check that your eval file and training file share no rows.
+**What this inflates:** Overall accuracy. The model gets easy points on examples it already knows, which pushes the number up before it even touches a new example.
+
+**Pattern to watch for:** If your eval file shares any rows with your training file, your accuracy number is optimistic. Always verify zero overlap before trusting a score.
 
 ---
 
 ### Problem 2: Examples so obvious they prove nothing
 
-Further down the bad eval:
+Scroll further down `bad_eval.csv`. You'll find rows like:
 
 ```
 "Something is broken." → bug_report
@@ -67,77 +177,79 @@ Further down the bad eval:
 "Add stuff." → feature_request
 ```
 
-These are so vague that almost any classifier — including a naive keyword matcher — would get them right. "Error" → `bug_report`. "Too expensive" → `pricing_concern`. They add to your accuracy count without testing whether the model can handle anything realistic.
+These are so vague that almost any classifier — including a keyword matcher — would get them right. They add to your accuracy count without testing whether the model can handle anything realistic.
 
-Your real inbox doesn't look like this. It looks like: `"3/10 — Product is genuinely good but we're a nonprofit and the pricing isn't sustainable. Reviewing alternatives at renewal."` That's a pricing concern — but it contains positive language, a score, and a churn signal all in one sentence. That's what the model needs to handle, and that's what your eval needs to test.
+Your real inbox doesn't look like this. It looks like:
 
-**The pattern to watch for:** If every example in your eval is unambiguous and short, you're not testing the hard cases. Good evals include boundary cases, mixed signals, and realistic phrasing — not idealized clean text.
+```
+"3/10 — Product is genuinely good but we're a nonprofit and the pricing isn't
+sustainable. Reviewing alternatives at renewal."
+```
+
+That's a pricing concern — but it contains positive language, a score, and a churn signal all in one sentence. That's what the model needs to handle. That's what your eval needs to test.
+
+**Pattern to watch for:** If every example in your eval is unambiguous and short, you're not testing the hard cases. Good evals include boundary cases, mixed signals, and realistic phrasing.
 
 ---
 
 ### Problem 3: Too few examples per label — especially for the failing ones
 
-Check the per-label breakdown from the scoring script:
+Look at the support column in the output:
 
 ```
-bug_report         10/10  ← looks perfect
-feature_request     3/3   ← looks perfect
-pricing_concern     3/3   ← looks perfect
-onboarding_friction 2/2   ← looks perfect
-praise              0/0   ← category missing entirely
+bug_report           support: 10
+feature_request      support: 3
+onboarding_friction  support: 2
+pricing_concern      support: 3
+praise               support: 0
 ```
 
-The bad eval has 10 `bug_report` examples and only 2 `onboarding_friction`. Worse, `praise` is missing completely. If the model has a systematic problem with `praise` — confusing it with `feature_request`, for example — this eval will never surface it. You'd ship a model with a blind spot you didn't know about.
+10 bug report examples. 2 onboarding friction examples. Zero praise.
 
-Getting 2/2 on `onboarding_friction` tells you almost nothing. With two examples, the model could be right by chance. You need at least 15–20 examples per category to have any confidence in a per-label score.
+Getting 2/2 on `onboarding_friction` tells you almost nothing. With two examples, the model could be right by chance. And if the model has a systematic blind spot with `praise` — maybe it confuses it with `feature_request` — this eval will never show it. You'd ship a broken model with no idea.
 
-**The pattern to watch for:** If any category has fewer than 10 examples in your eval, that category's score is noise. If a category is missing entirely, you're flying blind on it.
+**Pattern to watch for:** Any category with fewer than 10 examples in your eval has an unreliable score. A missing category means you're flying blind on it entirely.
 
 ---
 
 ## Side by side: bad eval row vs. trustworthy eval row
 
-| | Bad eval row | Trustworthy eval row |
-|---|---|---|
-| **bug_report** | `"Error."` | `"Bulk delete says 'success' but nothing actually gets deleted. Tried on three different projects."` |
-| **pricing_concern** | `"Too expensive."` | `"3/10 — Product is good but we're a nonprofit and can't sustain the pricing. Reviewing alternatives at renewal."` |
-| **onboarding_friction** | `"Setup was confusing."` | `"I was invited by a colleague. Clicked the link and it sent me to the homepage, not her workspace."` |
-| **feature_request** | `"Add stuff."` | `"On a call with a prospect — they specifically asked if we have Jira two-way sync. We don't. Worth prioritising."` |
+| Label | Bad eval row | Trustworthy eval row |
+|-------|---|---|
+| `bug_report` | `"Error."` | `"Bulk delete says 'success' but nothing actually gets deleted. Tried on three different projects."` |
+| `pricing_concern` | `"Too expensive."` | `"3/10 — Product is good but we're a nonprofit and can't sustain the pricing. Reviewing alternatives at renewal."` |
+| `onboarding_friction` | `"Setup was confusing."` | `"I was invited by a colleague. Clicked the link and it sent me to the homepage, not her workspace."` |
+| `feature_request` | `"Add stuff."` | `"On a call with a prospect — they specifically asked if we have Jira two-way sync. We don't. Worth prioritising."` |
 
-The trustworthy rows are specific, realistic, and drawn from the kinds of things that actually show up in your inbox — including channel-style variation, mixed signals, and real phrasing. They're harder. That's the point.
+The trustworthy rows are specific, realistic, and drawn from real inbox phrasing. They're harder. That's the point.
 
 ---
 
 ## What a high score on a bad eval actually tells you
 
-Not much. Here's why:
+Not much. Here's the breakdown:
 
-- **Memorization**: the model got training examples right because it studied them, not because it generalized
-- **Easy examples**: the model got obvious examples right because anything would
-- **Missing categories**: the model's worst-performing label wasn't even tested
+- **Memorization:** the model got training examples right because it studied them, not because it generalized
+- **Easy examples:** the model got obvious examples right because anything would
+- **Missing categories:** the model's worst-performing label wasn't even tested
 
-An accuracy number without knowing where those examples came from and how they were selected is not information. It's a feeling of confidence that hasn't been earned.
-
-This is the exact pattern that causes teams to ship models that look fine in testing and fail on real data. The test was too easy, too close to training, or didn't cover the hard cases.
-
-**The stakeholder consequence:** Every decision made downstream of an accuracy number — whether to ship, how much engineering to invest, what to put on the roadmap — is only as trustworthy as the eval that produced it. An 85% from a bad eval presented to leadership is not a conservative number being cautiously interpreted. It's a misleading number that will produce confident bad decisions. The eval is not a technical artifact. It's the evidence base for product decisions.
+An accuracy number without knowing where those examples came from is not information. It's a feeling of confidence that hasn't been earned.
 
 > [!TIP]
-> **Tradeoff:** Building a thorough eval takes time before you start tuning. It's tempting to skip it and go straight to improving the model. The cost of skipping is that you tune blindly — you don't know if a change actually helped, hurt a specific category, or did nothing. The upfront investment in a real eval set pays back every time you retrain. This is the same tradeoff as skipping user research to ship faster: you move quicker in the short term and slower for every decision after that.
-
-> [!NOTE]
-> **The missing-category problem as a PM pattern:** If `praise` isn't in your eval, you don't know whether the model handles it. That's the same as not tracking a metric you care about. PMs who don't measure `onboarding_friction` separately from `bug_report` routinely underestimate how much of their inbox is an onboarding problem — because it all gets lumped together. Not measuring something doesn't mean it isn't happening. It means you can't see it.
+> **Tradeoff:** Building a thorough eval takes time before you start tuning. It's tempting to skip it and go straight to improving the model. The cost of skipping is that you tune blindly — you don't know if a change actually helped, hurt a specific category, or did nothing. The upfront investment in a real eval set pays back every time you retrain. Same tradeoff as skipping user research to ship faster: you move quicker in the short term and slower for every decision after that.
 
 > [!IMPORTANT]
-> **Customer impact:** A model that passes a flawed eval gets shipped. It mislabels tickets at the same rate as an untested model — you just don't know it yet. The PM's five Monday-morning questions get answered with corrupted data. The team focuses on the wrong problems. Customers who took the time to write detailed, specific feedback find that nothing changes — not because the team didn't care, but because the feedback was routed to the wrong pile by a model that looked fine on paper. The bad eval doesn't just hurt your measurement. It breaks the feedback loop between your customers and your product team.
+> **Customer impact:** A model that passes a flawed eval gets shipped. It mislabels tickets at the same rate as an untested model — you just don't know it yet. The PM's five Monday-morning questions get answered with corrupted data. Customers who took the time to write detailed feedback find that nothing changes — not because the team didn't care, but because the feedback was routed to the wrong pile by a model that looked fine on paper.
 
 ---
 
-## What comes next
+## What you just learned
 
-You now know what a bad eval looks like and why it produces misleading scores. In Chapter 05, you'll build the real thing: a fixed eval suite that's separate from training, covers every category with enough examples to surface real weaknesses, and includes the hard cases — ambiguous tickets, short Slack messages, mixed-signal NPS verbatims — that your model will actually face on Monday morning.
+Before moving on, make sure you can answer these:
 
-The score you get from that eval will be one you can trust.
+- What are the three things that make an eval misleading?
+- Why does testing on training data produce inflated accuracy?
+- Why does having 2 examples for a label make that label's score meaningless?
 
 ---
 
