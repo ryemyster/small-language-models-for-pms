@@ -169,17 +169,17 @@ Say you've labeled 80 tickets and decide that `pricing_concern` should now inclu
 
 ## The training data for this project
 
-The training data lives in `training/data/feedback.csv`. It has 170 labeled examples drawn from the kind of feedback that lands in a product team's inbox on a given week.
+The training data lives in `training/data/feedback.csv`. It has 163 labeled examples drawn from the kinds of channels a product team actually receives feedback through — Zendesk support tickets, NPS survey verbatims, in-app chat messages, Slack posts from #feedback channels, app store reviews, and notes relayed from sales and CS calls. The tone and format vary deliberately: some examples are formal multi-sentence tickets, some are a single informal line. That variety reflects what your real inbox looks like.
 
 | Label | Examples |
 |-------|----------|
-| `bug_report` | 37 |
+| `bug_report` | 40 |
 | `feature_request` | 34 |
+| `onboarding_friction` | 30 |
+| `praise` | 30 |
 | `pricing_concern` | 29 |
-| `praise` | 27 |
-| `onboarding_friction` | 25 |
 
-The distribution isn't even — `bug_report` has 37, `onboarding_friction` has 25. That's intentional. In real inbox data, some categories appear more often than others. Artificially balancing to equal counts would make the training data less realistic.
+The distribution isn't even — `bug_report` has the most because bug reports tend to be the highest-volume category in most support inboxes. Artificially balancing to equal counts would make the data less realistic than what you'd actually collect.
 
 What matters is that every category has at least 20–30 examples. Below that, the model doesn't have enough signal to learn the pattern reliably.
 
