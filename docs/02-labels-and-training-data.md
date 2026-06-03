@@ -1,112 +1,128 @@
 # Chapter 02 — Labels and Training Data
 
-Before you train a model, you need to teach it what you want. You do that with labeled examples — real text paired with the right answer.
+Remember those 340 tickets from Monday morning? Before the model can sort them, you have to teach it what sorting means.
 
-This chapter explains what that means, what makes a good example, and what makes a bad one. By the end, you'll be able to add your own rows to the training data and spot the problems that will quietly hurt your model later.
-
----
-
-## What a label is
-
-A label is a category. It's the answer you want the model to produce when it sees a piece of text.
-
-In this project, there are five labels:
-
-| Label | What it means |
-|-------|---------------|
-| `bug_report` | Something in the product is broken |
-| `feature_request` | A customer wants something the product doesn't do yet |
-| `pricing_concern` | A customer is frustrated with cost, plans, or billing |
-| `onboarding_friction` | A new user had trouble getting started |
-| `praise` | Positive feedback — something is working well |
-
-These five categories aren't arbitrary. They map directly to the five questions from Chapter 01. Each label answers one of those questions.
+You do that with labeled examples — real feedback, paired with the right answer. This chapter walks through what that looks like, what makes a good example, and what quietly breaks a model before it even trains.
 
 ---
 
-## What an input is
+## The five questions, turned into five labels
 
-An input is the text the model reads. In this project, that's a single piece of customer feedback — one support ticket, one NPS comment, one survey response.
+In Chapter 01, you had five questions you needed answered before standup:
 
-The model reads the input and returns a label.
+| Your question | The label |
+|---------------|-----------|
+| What's broken right now? | `bug_report` |
+| What are customers asking us to build? | `feature_request` |
+| Is pricing causing frustration? | `pricing_concern` |
+| Where are new users getting stuck? | `onboarding_friction` |
+| What's already working? | `praise` |
 
-That's it. One piece of text in, one label out.
+Each label is the model's answer to one of your questions. When a ticket comes in and the model returns `onboarding_friction`, that's it answering: "this one belongs in the 'where are new users getting stuck?' pile."
+
+The model doesn't understand your questions. It doesn't understand anything in the way a person does. What it learns is the pattern: which kinds of text have been labeled which way, across hundreds of examples. Your job is to make those examples clear and consistent enough that the pattern is learnable.
+
+---
+
+## What the model actually receives
+
+For each ticket in your inbox, the model gets one input — the raw text — and returns one output — a label.
+
+Here's a ticket that came in over the weekend:
+
+```
+"The dashboard doesn't load on Safari — just a blank white screen."
+```
+
+The model reads that and returns:
+
+```
+bug_report
+```
+
+That's the full interaction. One piece of text in, one label out. The model doesn't know who sent it, when, or what plan they're on. It only sees the words.
 
 ---
 
 ## Training data is the model's study guide
 
-When you fine-tune a model, you give it a set of examples and tell it: "Study these. This is how I want you to think about this problem."
+To teach the model those patterns, you give it a set of labeled examples and say: "Study these. This is how I want you to sort feedback."
 
-The model reads your examples hundreds of times. It looks for patterns — which words appear with which labels, how phrasing relates to category. It doesn't memorize individual examples; it learns the patterns across all of them.
+The model reads your examples hundreds of times during training. It isn't memorizing them — it's learning the underlying patterns. Words like "broken," "crashes," and "error" tend to appear in `bug_report`. Words like "would love," "please add," and "wish you had" tend to appear in `feature_request`. It picks these up from the data, not from any rules you write.
 
-This means two things:
+That means two things:
 
-1. **The quality of your examples sets the ceiling.** A model trained on vague, inconsistent labels will produce vague, inconsistent predictions. Garbage in, garbage out is more literal here than in most contexts.
+1. **Quality sets the ceiling.** If your examples are inconsistent — the same kind of ticket labeled differently on different days — the model learns a confused version of your categories. What comes out will be as inconsistent as what went in.
 
-2. **The model can only learn what's in the data.** If all your `onboarding_friction` examples are about account setup and none are about confusing documentation, the model won't recognize documentation complaints as onboarding friction — even if you'd label them that way yourself.
+2. **The model can only learn what's in the data.** If all your `onboarding_friction` examples are about getting stuck during account setup, the model won't recognize complaints about confusing documentation as onboarding friction — even if you'd label them that way yourself. It hasn't seen that pattern.
 
 ---
 
 ## What a strong example looks like
 
-A strong example is unambiguous. Someone reading it should immediately know which label is right, without having to think hard.
+A strong example has one obvious label. If you showed it to a colleague who'd never seen your labeling guide, they'd pick the same category without hesitating.
+
+Here are three tickets from this weekend's inbox, each with a clear label:
 
 ```
 "The app crashes every time I try to export a report to PDF."
 → bug_report
 ```
 
+Something broke. There's no ambiguity about what the customer is reporting.
+
 ```
 "I created my account but couldn't figure out how to invite my team. Gave up after 10 minutes."
 → onboarding_friction
 ```
+
+A new user ran into a wall. The friction happened during setup.
 
 ```
 "Your pricing is too high for a small startup — we can't justify it."
 → pricing_concern
 ```
 
-Each of these has one obvious label. The text makes the category clear.
+A customer is frustrated with cost. One label, no question.
 
 ---
 
 ## What a weak example looks like
 
-### Ambiguous — could reasonably be two labels
+### Ambiguous — could honestly be two labels
 
 ```
 "I was billed for a full month even though I cancelled on day two."
 ```
 
-Is this `pricing_concern` (a complaint about billing policy) or `bug_report` (a billing system error)? It depends on context you don't have. If you label it `pricing_concern` and someone else would label it `bug_report`, the model gets a contradictory signal.
+Is this `pricing_concern` — frustration with a billing policy — or `bug_report` — a system error that charged them incorrectly? Without knowing more, you can't be sure. If you label it one way and a colleague labels the same type of ticket the other way, the model receives contradictory signals: same pattern, different labels.
 
-**What to do:** Pick the label that best fits your team's intent, and write a brief note in your labeling guide so the next person makes the same call. Consistency matters more than being technically perfect.
+**What to do:** Pick the label that fits your team's intent, write it down ("billing errors where the charge seems wrong go under `pricing_concern`"), and apply it consistently. Consistency matters more than being philosophically perfect.
 
 ---
 
-### Ambiguous at a boundary
+### Sits on a category boundary
 
 ```
 "I don't understand what I'm getting on the Pro plan that I don't already have on Basic."
 ```
 
-This could be `pricing_concern` (confusion about plan value) or something closer to a documentation complaint. The label depends on how you've defined `pricing_concern`. If your definition is "any frustration related to cost or plans," this fits. If it's "complaints about price level specifically," it might not.
+This is frustration about plans and pricing — but it's really about not being able to find clear information. Depending on how you've defined `pricing_concern`, it might fit cleanly or it might sit awkwardly at the edge.
 
-**What to do:** Write a one-sentence definition of each label before you start labeling. Refer to it every time you're unsure.
+**What to do:** Write a one-sentence definition for each label before you label a single row. Use it every time you're unsure. The definition is the source of truth — not your gut in the moment.
 
 ---
 
-### Duplicate or near-duplicate
+### Near-duplicate
 
 ```
 "The search bar returns no results even when I type an exact match."
 "Search is broken — I can't find anything."
 ```
 
-Both are `bug_report`. Having two nearly identical examples isn't useful — the model learns the same pattern twice without learning anything new. Worse, near-duplicates in training data often end up in the test set too (because splitting is done randomly), which makes your accuracy numbers look better than they are.
+Both are `bug_report`. Both say the same thing with different words. One extra example that says the same thing adds almost nothing — the model already learned that pattern from the first one. Worse, duplicates that end up in both training and test data make your accuracy numbers look better than they are.
 
-**What to do:** If you're adding examples manually, vary the phrasing. If you're pulling from real customer data, deduplicate before labeling.
+**What to do:** If you're adding examples manually, vary the phrasing. If you're pulling from real inbox data, deduplicate before labeling. The goal is variety, not volume.
 
 ---
 
@@ -114,44 +130,46 @@ Both are `bug_report`. Having two nearly identical examples isn't useful — the
 
 ```
 "Please add dark mode — it would make long sessions much easier on my eyes."
-→ labeled: bug_report   ← wrong
+→ labeled: bug_report   ← wrong, this is feature_request
 ```
 
-This is a `feature_request`. Dark mode doesn't exist yet — there's nothing broken. A mislabeled example is worse than no example, because the model learns the wrong pattern and you get errors you can't easily trace back to the cause.
+Dark mode doesn't exist yet. Nothing is broken. But if someone was tired, moving fast, or uncertain about the boundary between "the app is missing something" and "the app is broken," they might label this `bug_report` by mistake.
 
-**What to do:** Spot-check your data before training. Read 20 random rows. If you find mislabeled examples, fix them — and check whether the same mistake appears elsewhere.
+A mislabeled example actively hurts the model. It learns that `bug_report` sometimes includes requests for things that don't exist yet. You'll see the confusion show up in predictions later and won't be able to easily trace it back to the data.
 
----
-
-## Why more data is not automatically better data
-
-It's tempting to think that adding more examples always helps. It doesn't, if those examples are weak.
-
-A training set with 50 clear, consistent, well-distributed examples will produce a better model than 500 examples where 200 are duplicates, 100 are ambiguous, and 50 are mislabeled.
-
-More data helps when:
-- You have a category the model keeps getting wrong (add more examples of that specific type)
-- You're adding genuine variety — new phrasings, edge cases, different writing styles
-
-More data hurts when:
-- You're padding with near-duplicates to hit an arbitrary row count
-- You're adding examples before you've stabilized your label definitions
+**What to do:** Spot-check your training data before you train. Read 20 random rows. If you find a mislabeled example, fix it — and ask whether the same mistake appears elsewhere with a similar ticket type.
 
 ---
 
-## Labels must be stable before you train
+## Why more examples isn't automatically better
 
-Once you start training, don't change your label definitions mid-way. Here's why.
+It's tempting to pad the training set because a bigger number feels more confident. It isn't.
 
-If you decide halfway through that `pricing_concern` should now include billing bugs (not just pricing complaints), you need to go back and re-label all the examples you already wrote under the old definition. If you don't, the model gets contradictory signals: some `pricing_concern` examples are about price level, some are about billing errors. It will learn a confused version of the category.
+A set of 50 clear, consistent, varied examples will produce a better model than 500 examples where 200 are near-duplicates, 100 are ambiguous, and 50 are mislabeled.
 
-**The rule:** Lock your label definitions before you label a single row. Write them down. Refer to them. Change them only before you start, or after you've relabeled everything.
+More examples help when:
+- A category the model keeps getting wrong needs more signal — add varied examples of that specific type
+- You're adding genuine variety: different writing styles, edge cases, phrasings you haven't seen before
+
+More examples hurt when:
+- You're padding near-duplicates to hit a round number
+- You're adding examples before your label definitions are settled
 
 ---
 
-## The current training data
+## Labels must be stable before you start
 
-The training data for this project lives in `training/data/feedback.csv`. It has 170 labeled examples across the five categories:
+Here's a mistake that costs a lot of time: deciding mid-way through labeling that a category should mean something slightly different.
+
+Say you've labeled 80 tickets and decide that `pricing_concern` should now include billing system errors (not just complaints about price level). To make the data consistent, you'd need to go back through every `pricing_concern` example and re-evaluate it under the new definition. If you don't, the model trains on a split signal — some examples reflect the old definition, some the new one — and learns a confused version of the category that no one intended.
+
+**The rule:** Lock your label definitions before you label anything. Write them down. If a definition needs to change, stop, re-label, then continue.
+
+---
+
+## The training data for this project
+
+The training data lives in `training/data/feedback.csv`. It has 170 labeled examples drawn from the kind of feedback that lands in a product team's inbox on a given week.
 
 | Label | Examples |
 |-------|----------|
@@ -161,9 +179,9 @@ The training data for this project lives in `training/data/feedback.csv`. It has
 | `praise` | 27 |
 | `onboarding_friction` | 25 |
 
-The distribution isn't perfectly even — `bug_report` has 37 examples, `onboarding_friction` has 25. This is normal. In real customer data, some categories are more common than others. Completely even distribution would be artificial.
+The distribution isn't even — `bug_report` has 37, `onboarding_friction` has 25. That's intentional. In real inbox data, some categories appear more often than others. Artificially balancing to equal counts would make the training data less realistic.
 
-What matters is that each category has at least 20–30 examples. Below that, the model doesn't have enough signal to learn the pattern reliably.
+What matters is that every category has at least 20–30 examples. Below that, the model doesn't have enough signal to learn the pattern reliably.
 
 ---
 
@@ -178,25 +196,20 @@ text,label
 
 Rules:
 - Wrap text in double quotes
-- If the text itself contains a double quote, use two double quotes: `""`
-- The label must be exactly one of the five values above — spelling and underscores matter
+- The label must be exactly one of the five values — spelling and underscores matter
 - One row = one piece of feedback
 
-**Example:**
+**Example from the inbox:**
 
 ```csv
-"The bulk export feature exports only the first page — not all records.",bug_report
+"We went from 3 hours of manual reporting per week to 15 minutes. This tool did that.",praise
 ```
 
 ---
 
-## Using this for your own data
+## Adapting this for your own inbox
 
-If you want to adapt this project for a different classification problem, the only file you need to change is `training/data/feedback.csv`.
-
-Replace the five labels with your own categories. Keep the same two-column format. Aim for at least 30 examples per category.
-
-A template to copy:
+If you want to use this project for a different classification problem, change `training/data/feedback.csv`. Replace the five labels with your own categories, keep the same two-column format, and aim for at least 30 examples per category.
 
 ```csv
 text,label
@@ -208,13 +221,13 @@ text,label
 
 ## Study examples vs. test examples — a preview
 
-Right now, all 170 examples are used for training. But in Chapter 05, you'll build a fixed eval suite — a separate set of examples the model never trains on.
+Right now, all 170 examples train the model. But in Chapter 05, you'll build a fixed eval suite — a separate set of tickets the model never trains on, used only for testing.
 
-Why does that matter? Because if you test a model on the same examples it studied, you're not measuring how well it learned — you're measuring how well it memorized. A model can score 100% on its own training data and fail on anything new.
+Why does this matter? If you test the model on tickets it studied, you're measuring memorization, not learning. A model can score 100% on its own training data and fail on anything new.
 
-The eval set is the model's real test. You'll build it deliberately, not by splitting the training data randomly. That distinction will matter a lot when you get there.
+The payoff you're building toward: by Chapter 07, you'll run one command on Monday morning and every ticket in your inbox comes back labeled — `bug_report`, `feature_request`, `pricing_concern`, `onboarding_friction`, or `praise` — consistently, in under a second each, without sending a single ticket to an external API. The fixed eval suite is what tells you whether the model is actually ready for that, or just appears to be.
 
-For now: keep your training data and your eval data in separate files. Don't mix them.
+For now: keep training data and eval data in separate files. Never mix them.
 
 ---
 
