@@ -35,7 +35,8 @@ Before you start, run through the checklist from Chapter 01:
 
 If all four are true, you have a good SLM use case. If any are false, use Ollama for now and revisit when the conditions are met.
 
-**The tradeoff:** A fine-tuned model is more accurate and faster than prompting a general LLM at scale, but it requires upfront investment in labeling and eval design. For fewer than 100 classifications per week, the overhead may not be worth it. For recurring high-volume tasks, it almost always is.
+> [!TIP]
+> **Tradeoff:** A fine-tuned model is more accurate and faster than prompting a general LLM at scale, but it requires upfront investment in labeling and eval design. For fewer than 100 classifications per week, the overhead may not be worth it. For recurring high-volume tasks, it almost always is.
 
 ---
 
@@ -108,6 +109,7 @@ Aim for 30–50 labeled examples per category. More is better up to a point, but
 - Interview transcripts you've already analyzed
 
 **Format:** same as `training/data/feedback.csv`:
+
 ```csv
 text,label
 "We love the product but our CFO won't approve anything over $20k.",pricing
@@ -193,9 +195,11 @@ A model you ship is a model you maintain. Here's the minimal version of a monito
 
 **Trigger for immediate review:** a product release, a pricing change, a new customer segment, or a support workflow change. Any of these can create ticket patterns the model has never seen. Check within 2 weeks of a major change.
 
-**What this means for your job:** Production monitoring is not a technical job. It's a product habit — the same way you'd check NPS after a product launch or support volume after a pricing change. The model is part of your workflow now. A 30-minute monthly check is how you keep it trustworthy.
+> [!NOTE]
+> **Your job:** Production monitoring is not a technical job. It's a product habit — the same way you'd check NPS after a product launch or support volume after a pricing change. The model is part of your workflow now. A 30-minute monthly check is how you keep it trustworthy.
 
-**The customer impact:** A model that degrades silently routes feedback to the wrong team for weeks before anyone notices. Monthly monitoring means you catch it when 5 tickets are wrong, not when 500 are.
+> [!IMPORTANT]
+> **Customer impact:** A model that degrades silently routes feedback to the wrong team for weeks before anyone notices. Monthly monitoring means you catch it when 5 tickets are wrong, not when 500 are.
 
 ---
 

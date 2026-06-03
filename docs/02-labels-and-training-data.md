@@ -22,11 +22,14 @@ Each label is the model's answer to one of your questions. When a ticket comes i
 
 The model doesn't understand your questions. It doesn't understand anything in the way a person does. What it learns is the pattern: which kinds of text have been labeled which way, across hundreds of examples. Your job is to make those examples clear and consistent enough that the pattern is learnable.
 
-**What this means for your job:** Your five labels are not a technical detail — they are the five metrics you're tracking. If you define `onboarding_friction` too broadly and it catches both "new user got stuck" and "billing was confusing on day one," your Monday-morning answer to "where are new users getting stuck?" will be inflated and misleading. Getting the labels right is a product decision, not a labeling task.
+> [!NOTE]
+> **Your job:** Your five labels are not a technical detail — they are the five metrics you're tracking. If you define `onboarding_friction` too broadly and it catches both "new user got stuck" and "billing was confusing on day one," your Monday-morning answer to "where are new users getting stuck?" will be inflated and misleading. Getting the labels right is a product decision, not a labeling task.
 
-**The tradeoff — narrow vs. broad labels:** You could split `pricing_concern` into `pricing_level` (too expensive) and `billing_error` (charged incorrectly). That gives you more granular answers. It also means labeling more carefully, needing more training examples per category, and maintaining a more complex model. The right rule: start with the broadest labels that answer your real questions. Split a category only when the confusion matrix in Chapter 05 shows the model is systematically confusing two things you actually care about differently.
+> [!TIP]
+> **Tradeoff:** You could split `pricing_concern` into `pricing_level` (too expensive) and `billing_error` (charged incorrectly). That gives you more granular answers. It also means labeling more carefully, needing more training examples per category, and maintaining a more complex model. The right rule: start with the broadest labels that answer your real questions. Split a category only when the confusion matrix in Chapter 05 shows the model is systematically confusing two things you actually care about differently.
 
-**The customer impact:** Label design determines which customer problems get seen and which get lost. If `onboarding_friction` and `bug_report` are defined too loosely, a new user who hits a broken step during signup gets counted as a bug report — not an onboarding problem. Engineering gets a ticket. The onboarding team never hears about it. The signup flow doesn't improve. The next new user hits the same wall. The customer wrote detailed feedback, it got processed, and nothing changed — not because anyone ignored it, but because the label routed it to the wrong place. That's a labeling decision with a customer retention consequence.
+> [!IMPORTANT]
+> **Customer impact:** Label design determines which customer problems get seen and which get lost. If `onboarding_friction` and `bug_report` are defined too loosely, a new user who hits a broken step during signup gets counted as a bug report — not an onboarding problem. Engineering gets a ticket. The onboarding team never hears about it. The signup flow doesn't improve. The next new user hits the same wall. The customer wrote detailed feedback, it got processed, and nothing changed — not because anyone ignored it, but because the label routed it to the wrong place. That's a labeling decision with a customer retention consequence.
 
 ---
 
@@ -161,7 +164,8 @@ More examples hurt when:
 - You're padding near-duplicates to hit a round number
 - You're adding examples before your label definitions are settled
 
-**The PM analogy:** Counting labeled rows as a measure of progress is the same mistake as counting features shipped. Input volume is not output quality. The right measure is whether the model's F1 score improves on the weak categories — and you won't know that until Chapter 05. For now, focus on variety and consistency, not row count.
+> [!NOTE]
+> **PM analogy:** Counting labeled rows as a measure of progress is the same mistake as counting features shipped. Input volume is not output quality. The right measure is whether the model's F1 score improves on the weak categories — and you won't know that until Chapter 05. For now, focus on variety and consistency, not row count.
 
 ---
 
@@ -173,9 +177,11 @@ Say you've labeled 80 tickets and decide that `pricing_concern` should now inclu
 
 **The rule:** Lock your label definitions before you label anything. Write them down. If a definition needs to change, stop, re-label, then continue.
 
-**Why this is a product problem, not just a data problem:** If your label definitions shift mid-way, the model learns a confused category — but you won't notice until you look at the confusion matrix and see erratic predictions. More importantly, you lose the ability to track trends over time. If this week's `pricing_concern` count is based on a broader definition than last week's, the trend line is meaningless. Consistent labels are what make Monday-morning comparisons trustworthy. This is the same reason you don't change how you define a product KPI mid-quarter.
+> [!NOTE]
+> **Why this is a product problem, not just a data problem:** If your label definitions shift mid-way, the model learns a confused category — but you won't notice until you look at the confusion matrix and see erratic predictions. More importantly, you lose the ability to track trends over time. If this week's `pricing_concern` count is based on a broader definition than last week's, the trend line is meaningless. Consistent labels are what make Monday-morning comparisons trustworthy. This is the same reason you don't change how you define a product KPI mid-quarter.
 
-**The customer impact:** Inconsistent labels don't just muddy your data — they create inconsistent follow-through. A pricing complaint that gets labeled `bug_report` one week and `pricing_concern` the next means the pricing team only sees half the signal. Customers raising the same concern repeatedly see no response, because the pattern only exists in the full dataset — which the model is presenting inconsistently. Their repeated feedback appears to vanish. From their perspective, no one is listening.
+> [!IMPORTANT]
+> **Customer impact:** Inconsistent labels don't just muddy your data — they create inconsistent follow-through. A pricing complaint that gets labeled `bug_report` one week and `pricing_concern` the next means the pricing team only sees half the signal. Customers raising the same concern repeatedly see no response, because the pattern only exists in the full dataset — which the model is presenting inconsistently. Their repeated feedback appears to vanish. From their perspective, no one is listening.
 
 ---
 

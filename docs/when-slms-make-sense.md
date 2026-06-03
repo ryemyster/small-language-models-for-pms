@@ -51,16 +51,19 @@ Neither is better. They're tools for different jobs.
 ## Three PM tasks where a fine-tuned SLM wins
 
 ### 1. Customer feedback classification
+
 You have 500 support tickets. You want each one tagged: bug report, feature request, pricing concern, onboarding friction, or praise. The categories are fixed. The examples are repetitive. You have historical tickets you've already categorized.
 
 A fine-tuned model will tag them in under a minute, with consistent results. Ollama will take 30+ minutes, and the labels will vary based on how the model is feeling that day.
 
 ### 2. Interview transcript extraction
+
 You have 20 user research transcripts and want to extract: the participant's job title, their main pain point, and the product area they mentioned. The structure is always the same. The inputs are always transcripts.
 
 A fine-tuned model learns your extraction schema. It will pull the same fields from every transcript the same way. A general LLM will interpret the task slightly differently each time.
 
 ### 3. Document compliance checking
+
 You have product briefs and want to flag ones that are missing a success metric, a target segment, or a risk section. The rules are fixed. The structure is fixed.
 
 A fine-tuned model learns your definition of "complete". Once trained, it checks new docs in milliseconds.
@@ -70,12 +73,15 @@ A fine-tuned model learns your definition of "complete". Once trained, it checks
 ## Three PM tasks where you should just use Ollama
 
 ### 1. Open-ended synthesis
+
 "Summarize the key themes from these 10 user interviews." There's no single right answer. You want the model to think, not classify. Use Ollama.
 
 ### 2. One-off analysis
+
 "I have a strategy doc — does the positioning hold up?" This is a one-time question. You don't have labeled examples. You don't need a system. Use Ollama.
 
 ### 3. Tasks where you don't have labeled data
+
 If you can't point to 50+ examples where you already know the right answer, you can't fine-tune yet. The model has nothing to learn from. Use Ollama until you have the data.
 
 ---

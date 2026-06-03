@@ -20,7 +20,7 @@ New feedback
 
 After this chapter, you'll be able to run queries like:
 
-> "Find me feedback similar to 'users getting stuck at signup'" 
+> "Find me feedback similar to 'users getting stuck at signup'"
 
 ...and get back the most semantically similar tickets from your stored history — even if they use completely different words.
 
@@ -131,9 +131,11 @@ Done. Check your Supabase table at the dashboard.
 
 Open your Supabase dashboard → Table Editor → feedback. You'll see the stored rows. The `embedding` column will show `[768 numbers]` — that's the meaning map location for each piece of text.
 
-**What this means for your job:** Every classified ticket now has a permanent record: what it said, how it was labeled, how confident the model was, and where it sits on the meaning map. That history is queryable. You can filter by label, by date, by confidence threshold. You can look back at everything the model labeled as `pricing_concern` in the past 30 days without re-running any scripts.
+> [!NOTE]
+> **Your job:** Every classified ticket now has a permanent record: what it said, how it was labeled, how confident the model was, and where it sits on the meaning map. That history is queryable. You can filter by label, by date, by confidence threshold. You can look back at everything the model labeled as `pricing_concern` in the past 30 days without re-running any scripts.
 
-**The customer impact:** Stored results mean patterns become visible over time. If `onboarding_friction` tickets spike after a product release, that shows up in your stored history. Without persistence, you only know what's happening right now. With it, you can see what changed and when.
+> [!IMPORTANT]
+> **Customer impact:** Stored results mean patterns become visible over time. If `onboarding_friction` tickets spike after a product release, that shows up in your stored history. Without persistence, you only know what's happening right now. With it, you can see what changed and when.
 
 ---
 
@@ -169,17 +171,14 @@ Query: "too expensive for small teams" (filtered to: pricing_concern)
 
 The search found relevant feedback even when the query words don't appear in the results. "Users getting stuck during setup" matched "Gave up after 10 minutes" because both describe the same situation on the meaning map.
 
-**What this means for your job:** You can now ask questions you didn't anticipate at labeling time. Your five labels answer five specific questions. Semantic search lets you ask any question. "Show me feedback from customers who mentioned competitors." "Find everything that sounds like a churn signal." "What does our praise feedback have in common?" These don't require new labels — they use the meaning map you've already built.
+> [!NOTE]
+> **Your job:** You can now ask questions you didn't anticipate at labeling time. Your five labels answer five specific questions. Semantic search lets you ask any question. "Show me feedback from customers who mentioned competitors." "Find everything that sounds like a churn signal." "What does our praise feedback have in common?" These don't require new labels — they use the meaning map you've already built.
 
-**The tradeoff — labels vs. embeddings for the same question:**
+> [!TIP]
+> **Tradeoff:** If you want to know "how many pricing complaints this week?", use labels — count `pricing_concern` rows by date. Fast, exact, structured. If you want to know "what pricing-related feedback is most similar to this churning customer's message?", use embeddings — run a similarity search with the customer's message as the query. You'll find semantically similar tickets regardless of label. Both answers come from the same stored data. The label and the embedding coexist in the same row.
 
-If you want to know "how many pricing complaints this week?", use labels — count `pricing_concern` rows by date. Fast, exact, structured.
-
-If you want to know "what pricing-related feedback is most similar to this churning customer's message?", use embeddings — run a similarity search with the customer's message as the query. You'll find semantically similar tickets regardless of label.
-
-Both answers come from the same stored data. The label and the embedding coexist in the same row.
-
-**The customer impact of semantic search:** Without it, you only find the feedback you know to look for. A customer describes churn intent without using the word "cancel" — keyword search misses it, but semantic search finds it, because "we're evaluating alternatives" and "considering cancelling" are nearby on the meaning map. The customer wrote clearly. The tool just needed to listen at the right level.
+> [!IMPORTANT]
+> **Customer impact:** Without semantic search, you only find the feedback you know to look for. A customer describes churn intent without using the word "cancel" — keyword search misses it, but semantic search finds it, because "we're evaluating alternatives" and "considering cancelling" are nearby on the meaning map. The customer wrote clearly. The tool just needed to listen at the right level.
 
 ---
 

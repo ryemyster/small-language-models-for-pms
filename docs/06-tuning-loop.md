@@ -18,7 +18,8 @@ Before you change anything, open `training/experiment-log.md` and fill in Run 0 
 
 Write it down before you retrain. Once you've retrained, the baseline is gone — you can only compare if you recorded it first.
 
-**Why this matters for your job:** The experiment log is the same thing as a product changelog for the model. Without it, "the model got better" is a feeling. With it, it's a fact: `onboarding_friction` F1 went from 0.71 to 0.79 on the fixed eval after adding 10 targeted examples. That's a sentence you can put in a team update, a decision memo, or a case for investing more time in the model.
+> [!NOTE]
+> **Your job:** The experiment log is the same thing as a product changelog for the model. Without it, "the model got better" is a feeling. With it, it's a fact: `onboarding_friction` F1 went from 0.71 to 0.79 on the fixed eval after adding 10 targeted examples. That's a sentence you can put in a team update, a decision memo, or a case for investing more time in the model.
 
 ---
 
@@ -29,16 +30,20 @@ Look at your Chapter 05 eval output. You're looking for two things:
 **Lowest F1 by label.** That's your weakest category. From the example output in Chapter 05, it's `onboarding_friction` at F1 = 0.71.
 
 **Most common confusion in the matrix.** The `onboarding_friction` row showed:
+
 ```
 onboarding_friction    3    1    14    0    2
 ```
+
 Three `onboarding_friction` tickets predicted as `bug_report`. One predicted as `feature_request`. Two as `pricing_concern`.
 
 The target is clear: `onboarding_friction` mislabeled as `bug_report`, three times. That's a pattern, not noise.
 
-**What this means for your job:** Choosing what to fix first is a prioritisation decision, not a technical one. You could work on `pricing_concern` (F1 = 0.76) or `onboarding_friction` (F1 = 0.71). The right choice depends on which failure costs more. If your product team is actively working on an onboarding redesign, getting `onboarding_friction` right matters more. If pricing is a board-level concern this quarter, fix that first. The eval gives you the data. You make the call.
+> [!NOTE]
+> **Your job:** Choosing what to fix first is a prioritisation decision, not a technical one. You could work on `pricing_concern` (F1 = 0.76) or `onboarding_friction` (F1 = 0.71). The right choice depends on which failure costs more. If your product team is actively working on an onboarding redesign, getting `onboarding_friction` right matters more. If pricing is a board-level concern this quarter, fix that first. The eval gives you the data. You make the call.
 
-**The customer impact:** `onboarding_friction` mislabeled as `bug_report` means new users who hit a wall during setup get routed to the bug queue — not the growth or onboarding team. Engineers see the ticket. Nobody looks at the signup flow. New users keep hitting the same wall. Every week the model runs with this confusion, that failure compounds.
+> [!IMPORTANT]
+> **Customer impact:** `onboarding_friction` mislabeled as `bug_report` means new users who hit a wall during setup get routed to the bug queue — not the growth or onboarding team. Engineers see the ticket. Nobody looks at the signup flow. New users keep hitting the same wall. Every week the model runs with this confusion, that failure compounds.
 
 ---
 
@@ -70,9 +75,11 @@ These have already been added to `training/data/feedback.csv` as part of this ch
 
 **Why only one change:** If you add targeted data AND increase training epochs AND adjust the learning rate in the same run, you'll see a different number but you won't know what moved it. Maybe the extra examples helped. Maybe the extra epochs overfit. Maybe the learning rate change hurt `praise`. You can't tell. One variable per run means every result is interpretable.
 
-**The tradeoff — targeted data vs. general data:** Adding 10 specific examples for one failure mode is more efficient than adding 50 general examples across all categories. But it only works when you know exactly what the model is getting wrong and why. That's what the confusion matrix and mistake list gave you. Without that diagnosis, you'd be padding the dataset hoping something works — which is the slowest way to improve a model.
+> [!TIP]
+> **Tradeoff:** Adding 10 specific examples for one failure mode is more efficient than adding 50 general examples across all categories. But it only works when you know exactly what the model is getting wrong and why. That's what the confusion matrix and mistake list gave you. Without that diagnosis, you'd be padding the dataset hoping something works — which is the slowest way to improve a model.
 
-**The customer impact of this specific fix:** With 10 new training examples teaching the model that errors-during-setup = `onboarding_friction`, you expect the model to correctly route those tickets to the right team. In practice at 340 tickets/Monday, even moving `onboarding_friction` F1 from 0.71 to 0.79 means roughly 3 more tickets per week reaching the onboarding team instead of the bug queue. Each one is a new user who described exactly what went wrong. That's the signal a growth team needs to fix the signup flow.
+> [!IMPORTANT]
+> **Customer impact:** With 10 new training examples teaching the model that errors-during-setup = `onboarding_friction`, you expect the model to correctly route those tickets to the right team. In practice at 340 tickets/Monday, even moving `onboarding_friction` F1 from 0.71 to 0.79 means roughly 3 more tickets per week reaching the onboarding team instead of the bug queue. Each one is a new user who described exactly what went wrong. That's the signal a growth team needs to fix the signup flow.
 
 ---
 
@@ -136,7 +143,8 @@ Stop when one of these is true:
 
 **Good enough for the use case.** This is a product decision. If your team is only acting on `bug_report` and `pricing_concern` right now, a model that performs well on those two and weakly on the others may be the right place to stop. Don't tune for academic completeness. Tune for the decisions you're actually making.
 
-**The tradeoff — how long to tune:** More tuning runs = a more accurate model, but each run costs 15–30 minutes and requires a human to read the output and decide what changed. At some point, the marginal improvement per run shrinks below the cost of running it. For a weekly Monday-morning classifier, two to three deliberate tuning cycles is usually enough to go from "rough baseline" to "reliable enough to act on." For a model making high-stakes decisions, you'd tune longer and more systematically.
+> [!TIP]
+> **Tradeoff:** More tuning runs = a more accurate model, but each run costs 15–30 minutes and requires a human to read the output and decide what changed. At some point, the marginal improvement per run shrinks below the cost of running it. For a weekly Monday-morning classifier, two to three deliberate tuning cycles is usually enough to go from "rough baseline" to "reliable enough to act on." For a model making high-stakes decisions, you'd tune longer and more systematically.
 
 ---
 

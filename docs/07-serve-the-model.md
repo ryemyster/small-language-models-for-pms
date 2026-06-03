@@ -20,7 +20,8 @@ The boundary is intentional. Python is the right tool for ML training — the Hu
 
 The two sides never have to meet directly. The model artifact (`training/model/`) is the handoff. Python writes it. TypeScript serves it.
 
-**What this means for your job:** Once the model is behind an endpoint, it stops being an "ML project" and becomes a service — the same mental model as any API your product depends on. You can version it, monitor it, swap it for a better model without changing the callers, and document it with a simple spec: `POST /classify { text } → { label, confidence }`. That's a product decision, not a technical one.
+> [!NOTE]
+> **Your job:** Once the model is behind an endpoint, it stops being an "ML project" and becomes a service — the same mental model as any API your product depends on. You can version it, monitor it, swap it for a better model without changing the callers, and document it with a simple spec: `POST /classify { text } → { label, confidence }`. That's a product decision, not a technical one.
 
 ---
 
@@ -76,9 +77,11 @@ Each result arrives in under a second. The model is reading that text, tokenisin
 
 **What confidence means:** The model assigns a probability to each of the five labels. Confidence is the probability of the winning label. A 94% confidence on `bug_report` means the model is very sure. A 61% confidence means the text sits close to a category boundary — the model is less certain, and you should weight that result accordingly.
 
-**What this means for your job:** Low-confidence results are flags, not failures. In a real workflow, you'd set a threshold — classify automatically when confidence > 80%, route to human review when it's below. That threshold is a product decision: how much do you trust the model vs. how much do you need a human in the loop?
+> [!NOTE]
+> **Your job:** Low-confidence results are flags, not failures. In a real workflow, you'd set a threshold — classify automatically when confidence > 80%, route to human review when it's below. That threshold is a product decision: how much do you trust the model vs. how much do you need a human in the loop?
 
-**The customer impact:** With the model running as a service, classification can happen automatically as tickets arrive — not manually every Monday morning. A `bug_report` filed at 2am on a Sunday reaches the engineering queue before the team starts work Monday morning, not after someone runs a script. Speed of routing is speed of response.
+> [!IMPORTANT]
+> **Customer impact:** With the model running as a service, classification can happen automatically as tickets arrive — not manually every Monday morning. A `bug_report` filed at 2am on a Sunday reaches the engineering queue before the team starts work Monday morning, not after someone runs a script. Speed of routing is speed of response.
 
 ---
 
@@ -153,13 +156,15 @@ Volume       SLM              Ollama
 
 The fine-tuned model is faster because it does exactly one thing. Ollama generates tokens one at a time, checking each against the full vocabulary — a process designed for flexible open-ended output, not structured classification.
 
-**The tradeoff — this vs. an API:** You could classify with GPT-4o or Claude via API. The results would be comparable on accuracy. The differences:
-- **Cost**: API providers charge per token. At 100k classifications, that's a real budget line. Your local model costs $0 per call after training.
-- **Latency**: API calls add network round-trip time on top of inference time. Your local model is purely local.
-- **Data**: API calls send your customer data to a third party. Your local model never leaves your machine.
-- **Control**: You can retrain your model. You can't retrain a provider's model.
+> [!TIP]
+> **Tradeoff:** You could classify with GPT-4o or Claude via API. The results would be comparable on accuracy. The differences:
+> - **Cost**: API providers charge per token. At 100k classifications, that's a real budget line. Your local model costs $0 per call after training.
+> - **Latency**: API calls add network round-trip time on top of inference time. Your local model is purely local.
+> - **Data**: API calls send your customer data to a third party. Your local model never leaves your machine.
+> - **Control**: You can retrain your model. You can't retrain a provider's model.
 
-**The customer impact:** Every ticket that gets classified correctly reaches the right team faster. The latency difference between a 45ms local classifier and a 3200ms Ollama call matters at scale — not for the first ticket, but for Monday morning's full batch of 340.
+> [!IMPORTANT]
+> **Customer impact:** Every ticket that gets classified correctly reaches the right team faster. The latency difference between a 45ms local classifier and a 3200ms Ollama call matters at scale — not for the first ticket, but for Monday morning's full batch of 340.
 
 ---
 

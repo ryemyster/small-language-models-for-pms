@@ -11,11 +11,13 @@ Set aside about 30 minutes for the initial setup. Training the model takes anoth
 Once you've installed Python, Node.js, and Ollama (steps 1–3 below), run this from the project folder and it will handle the rest:
 
 **Mac / Linux:**
+
 ```bash
 python3 setup.py
 ```
 
 **Windows (PowerShell):**
+
 ```
 python setup.py
 ```
@@ -150,11 +152,13 @@ python3 -m venv .venv
 Then activate it:
 
 **Mac/Linux:**
+
 ```
 source .venv/bin/activate
 ```
 
 **Windows:**
+
 ```
 .venv\Scripts\activate
 ```
