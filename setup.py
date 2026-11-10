@@ -59,10 +59,15 @@ VENV_PIP    = os.path.join(VENV_DIR, "Scripts" if IS_WINDOWS else "bin", "pip")
 header("Step 1 of 5: Checking Python version")
 
 version = sys.version_info
-if version.major == 3 and version.minor >= 10:
+# The pinned packages in requirements.txt publish installers for Python 3.11–3.15.
+NEWEST_TESTED = 15
+if version.major == 3 and 11 <= version.minor <= NEWEST_TESTED:
     ok(f"Python {version.major}.{version.minor}.{version.micro} — good")
+elif version.major == 3 and version.minor > NEWEST_TESTED:
+    ok(f"Python {version.major}.{version.minor}.{version.micro} — newer than this tutorial was tested with")
+    info(f"If installing packages fails below, install Python 3.{NEWEST_TESTED} and run setup.py with it.")
 else:
-    fail(f"Python {version.major}.{version.minor} found — need 3.10 or higher")
+    fail(f"Python {version.major}.{version.minor} found — need 3.11 or higher")
     info("Download from: https://www.python.org/downloads/")
     info("On Windows: check 'Add Python to PATH' during install")
     sys.exit(1)
@@ -173,7 +178,7 @@ print('═' * 50)
 print()
 print("  Your environment is ready. Next steps:")
 print()
-print("  1. Train the model (15–30 minutes on a laptop CPU):")
+print("  1. Train the model (about a minute on a recent laptop):")
 
 if IS_WINDOWS:
     print(f"       .venv\\Scripts\\python training\\train.py")

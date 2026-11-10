@@ -32,6 +32,18 @@ You should see:
 bad_eval.csv   feedback.csv
 ```
 
+**Turn on the project's Python environment.** Every chapter shares the one setup created in the project root:
+
+```bash
+source ../../.venv/bin/activate       # Mac or Linux
+```
+
+```bash
+..\..\.venv\Scripts\activate          # Windows (PowerShell)
+```
+
+**✓ If it worked**, you'll see `(.venv)` at the start of your terminal prompt.
+
 **You need a trained model before you can run anything in this chapter.** Check if it exists:
 
 ```bash
@@ -40,16 +52,19 @@ ls model/
 
 **✓ If you see `model.safetensors`**, you're ready. Keep going.
 
-**✗ If you see `No such file or directory`**, run training first:
+**✗ If you see `No such file or directory`**, copy the model you trained in Chapter 03. The training data hasn't changed since then, so there's no need to train again:
 
 ```bash
-python3 -m venv .venv
-source .venv/bin/activate    # Mac/Linux — use .venv\Scripts\activate on Windows
-pip install -r requirements.txt
-python3 train.py
+cp -r ../03-train-baseline/model .                       # Mac or Linux
 ```
 
-That takes 15–30 minutes. Come back when it says `=== Done ===`.
+```bash
+Copy-Item -Recurse ..\03-train-baseline\model .         # Windows (PowerShell)
+```
+
+Run `ls model/` again. You should see `model.safetensors`.
+
+**✗ If Chapter 03 doesn't have a model either** (you're starting here), train one in this folder with `python3 train.py`. Come back when it says `=== Done ===`.
 
 ---
 
@@ -65,7 +80,7 @@ That takes 15–30 minutes. Come back when it says `=== Done ===`.
 
 ## The problem with the score from Chapter 03
 
-Your model just printed a number. Maybe 82%. Maybe 91%. It looked reasonable.
+Your model just printed a number. Ours was 88%. Yours is probably close. It looked reasonable.
 
 Here's the problem: that number came from testing the model on 33 randomly chosen examples from the *same pool* it trained on. It's like giving a student a test made from questions on their own study guide. Of course they'll do well.
 
@@ -95,16 +110,16 @@ python3 score_eval.py --eval data/bad_eval.csv
 ```
 === Scoring against data/bad_eval.csv ===
 
-Overall accuracy: 17/20 = 85%
+Overall accuracy: 16/20 = 80.0%
 ```
 
-85%. That looks decent. It isn't. Keep reading.
+80%. That looks decent. It isn't — not because it's too low or too high, but because this eval can't tell you anything. Keep reading.
 
-**✗ If you see `ModuleNotFoundError`**, your virtual environment isn't active. Run:
+**✗ If you see `ModuleNotFoundError`**, the project's environment isn't turned on in this terminal window. Run:
 
 ```bash
-source .venv/bin/activate    # Mac/Linux
-.venv\Scripts\activate       # Windows
+source ../../.venv/bin/activate    # Mac/Linux
+..\..\.venv\Scripts\activate       # Windows
 ```
 
 Then try again.
@@ -116,22 +131,24 @@ Then try again.
 After the accuracy line, you'll see per-label results:
 
 ```
-                     precision  recall  f1-score  support
-bug_report              0.91    1.00      0.95       10
-feature_request         0.75    1.00      0.86        3
-onboarding_friction     1.00    1.00      1.00        2
-pricing_concern         1.00    0.67      0.80        3
-praise                  0.00    0.00      0.00        0
+                     precision    recall  f1-score   support
 
-⚠ 'praise' has only 0 example(s) — score for this label is not reliable
-⚠ 'onboarding_friction' has only 2 example(s) — score for this label is not reliable
-⚠ 'feature_request' has only 3 example(s) — score for this label is not reliable
-⚠ 'pricing_concern' has only 3 example(s) — score for this label is not reliable
+         bug_report       1.00      0.70      0.82        10
+    feature_request       1.00      1.00      1.00         5
+onboarding_friction       0.40      1.00      0.57         2
+             praise       0.00      0.00      0.00         0
+    pricing_concern       1.00      0.67      0.80         3
+
+  ⚠ 'onboarding_friction' has only 2 example(s) — score for this label is not reliable
+  ⚠ 'praise' has only 0 example(s) — score for this label is not reliable
+  ⚠ 'pricing_concern' has only 3 example(s) — score for this label is not reliable
 ```
 
-Notice the warnings. Four of your five categories are flagged as unreliable. And `praise` has **zero examples** — one of your five Monday-morning questions was never tested at all.
+Your numbers may differ a little. The `support` column won't — it's the number of rows per label in the file.
 
-The 85% overall number hides all of this.
+Notice the warnings. Three of your five categories are flagged as unreliable. And `praise` has **zero examples** — one of your five Monday-morning questions was never tested at all.
+
+The 80% overall number hides all of this.
 
 ---
 
@@ -147,17 +164,17 @@ Look back at `bad_eval.csv` as you read each problem. You'll be able to spot eac
 - `data/bad_eval.csv`
 - `data/feedback.csv`
 
-Find the first few rows of `bad_eval.csv`:
+Find rows 2, 3, and 4 of `bad_eval.csv`:
 
 ```
-"The app crashes every time I try to export a report to PDF."
 "Hi Support, I'm getting a 500 error every time I try to export a report to PDF..."
-"CSV export producing scrambled column headers since last Tuesday."
+"CSV export producing scrambled column headers since last Tuesday..."
+"the dashboard just went blank. refreshed three times. nothing."
 ```
 
 Now search for those exact phrases in `feedback.csv`.
 
-You'll find them. These rows were copied directly from training data. The model studied them. Getting them right isn't learning — it's memorization. It's like letting a student bring their homework to the exam and counting it as correct when they copy it.
+You'll find them. These rows were copied directly from training data — and the model got all three right. The model studied them. Getting them right isn't learning — it's memorization. It's like letting a student bring their homework to the exam and counting it as correct when they copy it.
 
 **What this inflates:** Overall accuracy. The model gets easy points on examples it already knows, which pushes the number up before it even touches a new example.
 
@@ -177,7 +194,15 @@ Scroll further down `bad_eval.csv`. You'll find rows like:
 "Add stuff." → feature_request
 ```
 
-These are so vague that almost any classifier — including a keyword matcher — would get them right. They add to your accuracy count without testing whether the model can handle anything realistic.
+These look like the easiest possible test. Now look at the `Mistakes` list at the bottom of your output. When we ran it, three of the model's four mistakes were rows like these:
+
+```
+Text:      Something is broken.
+Actual:    bug_report
+Predicted: praise
+```
+
+That's not a sign the model is bad at real feedback. It learned from real tickets — specific, multi-sentence, full of context. "Something is broken." looks nothing like what it studied. Whether the model gets these right or wrong, they tell you nothing about how it'll handle your real inbox. They just add noise to the score: each row in a 20-row eval is worth 5 percentage points.
 
 Your real inbox doesn't look like this. It looks like:
 
@@ -198,7 +223,7 @@ Look at the support column in the output:
 
 ```
 bug_report           support: 10
-feature_request      support: 3
+feature_request      support: 5
 onboarding_friction  support: 2
 pricing_concern      support: 3
 praise               support: 0

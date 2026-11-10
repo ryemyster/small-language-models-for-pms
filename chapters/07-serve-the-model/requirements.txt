@@ -1,6 +1,9 @@
-transformers==4.40.0
-datasets==2.19.0
-scikit-learn==1.4.2
-pandas==2.2.2
-torch==2.3.0
-accelerate==0.30.1
+# Needs Python 3.11 or newer (these versions publish installers for 3.11–3.15).
+# Tested on Python 3.15 in November 2026. If pip says it can't find a version,
+# check `python3 --version` first.
+transformers==5.22.2
+datasets==5.2.0
+scikit-learn==1.9.1
+pandas==3.1.1
+torch==2.15.0
+accelerate==1.15.0

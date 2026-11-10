@@ -32,6 +32,18 @@ You should see:
 classify.ts   compare.ts   server.ts
 ```
 
+**Turn on the project's Python environment.** Every chapter shares the one setup created in the project root:
+
+```bash
+source ../../.venv/bin/activate       # Mac or Linux
+```
+
+```bash
+..\..\.venv\Scripts\activate          # Windows (PowerShell)
+```
+
+**✓ If it worked**, you'll see `(.venv)` at the start of your terminal prompt.
+
 **You need a trained model.** Check:
 
 ```bash
@@ -40,16 +52,19 @@ ls model/
 
 **✓ If you see `model.safetensors`**, you're ready.
 
-**✗ If the model folder is missing**, run training first:
+**✗ If the model folder is missing**, copy the improved model you trained in Chapter 06:
 
 ```bash
-python3 -m venv .venv
-source .venv/bin/activate    # Mac/Linux — use .venv\Scripts\activate on Windows
-pip install -r requirements.txt
-python3 train.py
+cp -r ../06-tuning-loop/model .                       # Mac or Linux
 ```
 
-Wait for `=== Done ===`, then come back.
+```bash
+Copy-Item -Recurse ..\06-tuning-loop\model .         # Windows (PowerShell)
+```
+
+Run `ls model/` again. You should see `model.safetensors`.
+
+**✗ If Chapter 06 doesn't have a model either** (you're starting here), train one in this folder with `python3 train.py`. It uses the same training data Chapter 06 ended with. Come back when it says `=== Done ===`.
 
 ---
 
@@ -167,21 +182,24 @@ npm run classify
 ```
 Text:       The dashboard crashes every time I try to export to PDF.
 Label:      bug_report
-Confidence: 94.3%
+Confidence: 82.7%
 ────────────────────────────────────────────────────────────
-
 Text:       It would be great if you could add a Slack integration.
 Label:      feature_request
-Confidence: 91.7%
+Confidence: 45.0%
 ────────────────────────────────────────────────────────────
 ```
 
+(Five examples in total. Your confidence numbers will be a little different from ours.)
+
 Each result arrives in under a second. The model is reading that text, breaking it into tokens, running it through the neural network, and returning the highest-probability label with its confidence score.
 
-**What confidence means:** The model assigns a probability to each of the five labels. Confidence is the probability of the winning label. 94% means the model is very sure. 61% means the text sits close to a category boundary — weight that result accordingly.
+**What confidence means:** The model assigns a probability to each of the five labels. Confidence is the probability of the winning label. With five labels, a model that's purely guessing would sit around 20%. Anything well above that means the model is leaning one way.
+
+Notice that every label above is right, but some confidence numbers are low — 45% on an obvious feature request. A small model trained on 175 examples is often right without being sure. Don't read confidence as "chance this label is correct." Read it as "how strongly the model leans."
 
 > [!NOTE]
-> **Your job:** Low-confidence results are flags, not failures. In a real workflow, you'd set a threshold — classify automatically when confidence > 80%, route to human review when it's below. That threshold is a product decision: how much do you trust the model vs. how much do you need a human in the loop?
+> **Your job:** Low-confidence results are flags, not failures. In a real workflow, you'd set a threshold: classify automatically above it, route to human review below it. Pick it from evidence, not intuition. Score your fixed eval, then check how often the model is right above and below a few candidate thresholds. With confidence numbers like the ones above, an 80% cutoff would send most tickets to a human. That threshold is a product decision: how much do you trust the model vs. how much do you need a human in the loop?
 
 > [!IMPORTANT]
 > **Customer impact:** With the model running as a service, classification happens automatically as tickets arrive — not manually every Monday morning. A `bug_report` filed at 2am on a Sunday reaches the engineering queue before the team starts work, not after someone runs a script. Speed of routing is speed of response.
@@ -201,7 +219,7 @@ curl -X POST http://localhost:3000/classify \
 **✓ You should see:**
 
 ```json
-{ "label": "onboarding_friction", "confidence": 0.8812 }
+{"label":"onboarding_friction","confidence":0.6805}
 ```
 
 This is the integration point. A Zendesk webhook, an NPS survey processor, a Slack bot — any of them can call this endpoint exactly the same way. The model doesn't care what's calling it. It sees text, returns a label.
@@ -240,32 +258,39 @@ Now run the comparison — **in your second terminal, with the server still runn
 npm run compare
 ```
 
-This takes a few minutes. Ollama generates responses one token at a time.
+This takes a minute or two. Ollama generates responses one token at a time.
 
 **✓ You should see a table like:**
 
 ```
-──────────────────────────────────────────────────────────────────────────────────
-Feedback                         Expected            SLM              Ollama
-──────────────────────────────────────────────────────────────────────────────────
-The app freezes every time...    bug_report          bug_report       bug_report
-I'd love to assign tasks...      feature_request     feature_request  feature_request
-I signed up but couldn't...      onboarding_friction onboarding_fric  bug_report
+Feedback                                     Expected              SLM                   Ollama                Match?
+─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+The app freezes every time I switch between pbug_report            bug_report            responsethankyouforsha  SLM
+...
+The graph is showing data from last week, notbug_report            bug_report            bug_report              tie
+...
+The getting started guide references a buttononboarding_friction   bug_report ✗          responsethankyouforbri  tie
 ...
 
-Accuracy — SLM: 19/20 (95%)   Ollama: 15/20 (75%)
+Accuracy — SLM: 18/20 (90%)   Ollama: 1/20 (5%)
 
 ── Speed ──────────────────────────────────────────────
-SLM average latency:    45ms per prediction
-Ollama average latency: 3200ms per prediction
+SLM average latency:    30ms per prediction
+Ollama average latency: 898ms per prediction
 
-── Projected time to classify N items ─────────────────
+── Projected time to classify N items (sequential) ────
 Volume       SLM              Ollama
-────────────────────────────────────────────────────────
-1,000        45s              53min
-10,000       8min             9hr
-100,000      1.2hr            3.7days
+──────────────────────────────────────────────
+1,000        30s              15min
+10,000       5min             2.5hr
+100,000      50min            24.9hr
 ```
+
+Those are the numbers we got. Your speeds will depend on your computer.
+
+**Look at the Ollama column first.** Most of its answers aren't labels at all. Asked for one word, TinyLlama wrote a customer-service reply ("Thank you for your feedback! We understand your concern..."). The script squashes that reply into a label-shaped string like `responsethankyouforsha`, which never matches. TinyLlama is a general chat model small enough to download in a minute, and models that small don't reliably follow format instructions. Larger general models follow instructions much more reliably, at the cost of a multi-gigabyte download and slower answers.
+
+**Then look at what your model missed.** Both of its mistakes are onboarding tickets labeled `bug_report` — the same weak spot you found in Chapter 05 and improved in Chapter 06, but didn't eliminate.
 
 **Read the latency numbers.** The fine-tuned model is faster because it does exactly one thing. Ollama generates tokens one at a time — a process designed for flexible open-ended output, not structured classification.
 
@@ -286,7 +311,7 @@ At this point, the full pipeline exists:
 Customer writes feedback
   → arrives in your inbox (Zendesk, Slack, NPS, email)
   → POST /classify
-  → { label: "onboarding_friction", confidence: 0.88 }
+  → { label: "onboarding_friction", confidence: 0.68 }
   → routed to the right team
   → your five Monday-morning questions answered automatically
 ```

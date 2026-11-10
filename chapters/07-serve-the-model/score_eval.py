@@ -2,11 +2,11 @@
 score_eval.py — Score a saved model against any labeled eval CSV.
 
 Usage:
-  python3 training/score_eval.py --eval training/data/bad_eval.csv
-  python3 training/score_eval.py --eval training/data/eval.csv
+  python3 score_eval.py --eval data/eval.csv                     (inside a chapter folder)
+  python3 training/score_eval.py --eval training/data/eval.csv   (from the project root)
 
-The model must already be trained. Run training/train.py first if you
-haven't yet.
+The model must already be trained. Run train.py first if you haven't yet.
+It's loaded from model/ next to this file, wherever you run the script from.
 
 Output: overall accuracy, per-label F1, confusion matrix, and the rows it got wrong.
 """
@@ -27,15 +27,17 @@ import torch
 from sklearn.metrics import classification_report, confusion_matrix
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 
-MODEL_DIR = "training/model"
+# The model lives next to this file (training/model at the root, model/ in a chapter).
+MODEL_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "model")
+MODEL_DIR_SHOWN = os.path.relpath(MODEL_DIR)
 TEXT_COLUMN = "text"
 LABEL_COLUMN = "label"
 
 
 def load_model():
     if not os.path.exists(MODEL_DIR):
-        print(f"\n[ERROR] No trained model found at {MODEL_DIR}/")
-        print("  Fix: run python3 training/train.py first\n")
+        print(f"\n[ERROR] No trained model found at {MODEL_DIR_SHOWN}/")
+        print("  Fix: run train.py first (it's in the same folder as this script)\n")
         sys.exit(1)
     tokenizer = AutoTokenizer.from_pretrained(MODEL_DIR)
     model = AutoModelForSequenceClassification.from_pretrained(MODEL_DIR)
@@ -66,7 +68,7 @@ def main():
         print(f"\n[ERROR] Eval file not found: {args.eval}\n")
         sys.exit(1)
 
-    print(f"\n=== Loading model from {MODEL_DIR}/ ===")
+    print(f"\n=== Loading model from {MODEL_DIR_SHOWN}/ ===")
     tokenizer, model = load_model()
     labels = list(model.config.label2id.keys())
 

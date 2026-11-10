@@ -35,7 +35,7 @@ feedback.csv
 That's the completed training data from Chapter 02 — 163 labeled examples, ready to go. You don't need to copy anything.
 
 **What you'll do in this chapter:**
-- Install the Python dependencies the training script needs
+- Turn on the project's Python environment
 - Run training and watch it work
 - Read the output and understand what each number means
 
@@ -53,17 +53,18 @@ It won't be perfect. That's expected. This is the first draft.
 
 ---
 
-## Step 1: Install dependencies
+## Step 1: Turn on the project's Python environment
+
+When you ran setup in [Getting Started](getting_started.md), it created a virtual environment called `.venv` in the project root, with every Python package this tutorial needs. Every chapter uses that same one, so you only install once.
 
 Make sure you're inside `chapters/03-train-baseline/` first. Then run:
 
 ```bash
-python3 -m venv .venv
-source .venv/bin/activate       # Mac or Linux
+source ../../.venv/bin/activate       # Mac or Linux
 ```
 
 ```bash
-.venv\Scripts\activate          # Windows (PowerShell)
+..\..\.venv\Scripts\activate          # Windows (PowerShell)
 ```
 
 **✓ If it worked**, your terminal prompt changes. You'll see `(.venv)` at the very start:
@@ -72,19 +73,16 @@ source .venv/bin/activate       # Mac or Linux
 (.venv) your-name@your-computer 03-train-baseline %
 ```
 
-Now install the Python packages the training script needs:
+**✗ If you see `No such file or directory`** (or `is not recognized` on Windows), setup hasn't been run yet. Go back to the project root, run it, then come back:
 
 ```bash
-pip install -r requirements.txt
+cd ../..
+python3 setup.py
+cd chapters/03-train-baseline
 ```
 
-**✓ If it worked**, the last line will say something like:
-
-```
-Successfully installed transformers-4.x.x datasets-x.x.x ...
-```
-
-**✗ If you see `pip: command not found`**, try `pip3` instead of `pip`.
+> [!TIP]
+> You'll do this at the start of every chapter. The environment only stays on for the terminal window you turned it on in. Open a new window, turn it on again.
 
 ---
 
@@ -92,11 +90,11 @@ Successfully installed transformers-4.x.x datasets-x.x.x ...
 
 **Open `chapters/03-train-baseline/train.py` in your text editor.**
 
-Scroll through it. You don't need to understand all of it. Just notice a few things:
+Scroll through it. You don't need to understand all of it. Just find a few things (use your editor's search, `Cmd+F` on Mac or `Ctrl+F` on Windows):
 
-- Line 1–10: checks that `accelerate` is installed before doing anything else
-- Around line 90: `model_name = "distilbert-base-uncased"` — this is the base model it starts with
-- Around line 149: `num_train_epochs=3` — this means the model studies your examples 3 times through
+- Near the top: a check that `accelerate` is installed before doing anything else
+- Search for `BASE_MODEL` — `"distilbert-base-uncased"` is the base model it starts with
+- Search for `num_train_epochs` — how many times the model studies your examples, start to finish
 
 You'll come back to this file in Chapter 06 when you tune the model deliberately. For now, just know it exists and where to find it.
 
@@ -110,7 +108,7 @@ From inside `chapters/03-train-baseline/`, run:
 python3 train.py
 ```
 
-**This will take 15–30 minutes on a laptop CPU.** You don't need to watch it. Go make coffee. Come back when you see `=== Done ===` in the terminal.
+**This takes about a minute on a recent laptop, and longer on an older one.** The first run also downloads the base model (about 250MB), so give it a few extra minutes. Come back when you see `=== Done ===` in the terminal.
 
 **✓ If it starts printing output right away**, it's working. You should see something like:
 
@@ -120,14 +118,11 @@ python3 train.py
 
 **✗ If you see `ModuleNotFoundError: No module named 'accelerate'`**
 
-Run this and then try again:
-```bash
-pip install -r requirements.txt
-```
+The project's environment isn't turned on. Go back to Step 1, then try again.
 
-**✗ If you see `FileNotFoundError: training/data/feedback.csv`**
+**✗ If you see `FileNotFoundError` mentioning `data/feedback.csv`**
 
-You're running the script from the wrong folder. Make sure you're in the project root (the folder that contains `README.md`) before running `python3 training/train.py`.
+The training data is missing from this folder. Run `ls data/` — you should see `feedback.csv`. If it's gone, restore it with `git checkout -- data/feedback.csv`.
 
 ---
 
@@ -154,7 +149,7 @@ Think of it like hiring someone who is fluent in English but has never worked in
 ### Step 2: Loading and splitting the data
 
 ```
-=== Step 2: Loading data from training/data/feedback.csv ===
+=== Step 2: Loading data from data/feedback.csv ===
 Training on 130 examples, testing on 33 examples.
 ```
 
@@ -181,20 +176,23 @@ This is the part that takes time. Go make a coffee.
 
 **Tokenizing** means breaking text into pieces the model can process. The model doesn't read words — it reads tokens. A token is roughly a word fragment. "onboarding" might become `["on", "##board", "##ing"]`. This matters because it means the model can handle words it's never seen before by breaking them into familiar parts.
 
-**Fine-tuning** is the actual training. The model reads each example in the training set, predicts a label, compares its prediction to the correct label, and adjusts its internal numbers slightly in the direction of the right answer. It does this for all 130 training examples — then does it again, then again. Three full passes total.
+**Fine-tuning** is the actual training. The model reads each example in the training set, predicts a label, compares its prediction to the correct label, and adjusts its internal numbers slightly in the direction of the right answer. It does this for all 130 training examples — then does it again, and again. Six full passes total.
 
-After each pass, it checks its accuracy on the test set. You'll see numbers like this scroll by:
+After each pass, it checks itself against the test set. Among the progress bars, you'll see a line like this after every pass (shortened here):
 
 ```
-{'eval_loss': 1.23, 'eval_accuracy': 0.67, ...}   # after pass 1
-{'eval_loss': 0.91, 'eval_accuracy': 0.79, ...}   # after pass 2
-{'eval_loss': 0.74, 'eval_accuracy': 0.85, ...}   # after pass 3
+{'eval_loss': '1.494', ..., 'epoch': '1'}
+{'eval_loss': '1.298', ..., 'epoch': '2'}
+{'eval_loss': '1.087', ..., 'epoch': '3'}
+{'eval_loss': '0.9352', ..., 'epoch': '4'}
+{'eval_loss': '0.8286', ..., 'epoch': '5'}
+{'eval_loss': '0.8065', ..., 'epoch': '6'}
 ```
 
-**Loss going down and accuracy going up means the model is learning.** If both numbers plateau early or accuracy stays low, your data quality or label definitions may need attention. That's a signal to look at — not a failure.
+**Loss** is a measure of how wrong the model's guesses are on the test set. Lower is better. **Loss going down pass after pass means the model is learning.** If it stops dropping after the first pass or two, or barely moves at all, your data quality or label definitions may need attention. That's a signal to look at — not a failure.
 
 > [!TIP]
-> **Tradeoff:** Each training run takes 15–30 minutes on a laptop CPU. That means roughly 6–8 experiments per day if you're actively tuning. If you need faster iteration — to test more data combinations or label changes — you have two options: rent a GPU (faster training, real cost) or use a smaller base model (faster but potentially lower accuracy). For this tutorial, the laptop CPU is fine. For a production workflow where you retrain weekly, iteration speed becomes a real constraint worth planning around.
+> **Tradeoff:** With 163 examples, a training run takes about a minute. Training time grows with the size of your data, so a real dataset of a few thousand examples takes much longer per run, and every experiment costs that wait. If you need faster iteration — to test more data combinations or label changes — you have two options: rent a GPU (faster training, real cost) or use a smaller base model (faster but potentially lower accuracy). For this tutorial, your laptop is fine. For a production workflow where you retrain weekly, iteration speed becomes a real constraint worth planning around.
 
 ---
 
@@ -218,17 +216,17 @@ After training, the script runs the model against the test set and prints three 
 
 When you see `=== Done ===`, look at your project folder.
 
-**Open your file explorer (Finder on Mac, File Explorer on Windows) and navigate to the `training/` folder.**
+**Open your file explorer (Finder on Mac, File Explorer on Windows) and navigate to the `chapters/03-train-baseline/` folder.**
 
 You should now see a new folder called `model/`. Inside it:
 
 ```
-training/model/
+model/
   config.json           ← model settings and label names
   model.safetensors     ← the actual trained model (this is the big one)
   tokenizer.json        ← how to break text into tokens
   tokenizer_config.json
-  vocab.txt
+  training_args.bin     ← the settings training used
 ```
 
 **✓ If you see `model.safetensors`, training worked.** That file is the function you built. Given a piece of feedback text, it returns one of your five labels.
@@ -236,17 +234,17 @@ training/model/
 **✗ If the `model/` folder doesn't exist**, scroll back up in the terminal and look for an error message. The most common ones are covered in the troubleshooting section below.
 
 > [!NOTE]
-> The `training/model/` folder is intentionally excluded from git. It's too large to commit (250MB+) and you can always regenerate it by running `train.py` again. Never try to commit the model files — the `.gitignore` will block it anyway.
+> The `model/` folder is intentionally excluded from git. It's too large to commit (about 250MB) and you can always regenerate it by running `train.py` again. Never try to commit the model files — the `.gitignore` will block it anyway.
 
 ---
 
 ## What the numbers mean — and what they don't
 
-You'll see an overall accuracy somewhere between 70% and 90% on your first run. That range is normal for a first baseline with ~160 training examples.
+Find the `accuracy` line in the per-category results. When we ran it, the baseline came out at **0.88**: 88% of the 33 test examples. Your number may differ by a few points, depending on your computer. Anywhere from the mid-80s to low 90s is normal for a first baseline with ~160 training examples.
 
 **This number is not a verdict.** Here's why:
 
-An 85% accuracy on 33 test examples means the model got 28 right and 5 wrong. That's not enough data to know whether those 5 mistakes are a fluke or a systematic problem. It doesn't tell you which categories are weak. It doesn't tell you whether the model would hold up on the real Monday-morning inbox — 340 tickets it's never seen, including weird phrasings, sarcasm, and messages that straddle two categories.
+88% on 33 test examples means the model got 29 right and 4 wrong. That's not enough data to know whether those 4 mistakes are a fluke or a systematic problem. It doesn't tell you which categories are weak. It doesn't tell you whether the model would hold up on the real Monday-morning inbox — 340 tickets it's never seen, including weird phrasings, sarcasm, and messages that straddle two categories.
 
 The baseline gives you a starting point, not a finish line. In Chapter 04, you'll see exactly why a high accuracy score can still mean a model you shouldn't trust. In Chapter 05, you'll build the eval that actually tells you whether it's ready.
 
@@ -254,17 +252,17 @@ The baseline gives you a starting point, not a finish line. In Chapter 04, you'l
 
 ## If something goes wrong
 
-**`ModuleNotFoundError: No module named 'accelerate'`**
-Run `pip install -r requirements.txt`. The virtual environment may not have been active when you installed dependencies.
+**`ModuleNotFoundError: No module named 'accelerate'`** (or `torch`, or `transformers`)
+The project's environment isn't turned on in this terminal window. Run `source ../../.venv/bin/activate` (Windows: `..\..\.venv\Scripts\activate`) and try again.
 
-**`FileNotFoundError: training/data/feedback.csv`**
-Run the script from the repo root, not from inside the `training/` folder.
+**`FileNotFoundError` mentioning `data/feedback.csv`**
+The training data is missing. Restore it with `git checkout -- data/feedback.csv`.
 
 **Training stops early or throws a CUDA error**
-Find line 149 in `train.py` — it says `per_device_train_batch_size=16`. Change `16` to `8`. Save the file and run `train.py` again. This uses less memory.
+Search `train.py` for `per_device_train_batch_size=16`. Change `16` to `8`. Save the file and run `train.py` again. This uses less memory.
 
 **The model saves but accuracy looks very low (below 40%)**
-Check that your virtual environment is active and you're using Python 3.10+. Also check `training/data/feedback.csv` has column names `text` and `label` in the first row.
+Check that your virtual environment is active and you're using Python 3.11+. Also check `data/feedback.csv` has column names `text` and `label` in the first row.
 
 ---
 

@@ -30,6 +30,32 @@ classify.ts   compare.ts   search.ts   server.ts   store.ts
 
 The two new files — `store.ts` and `search.ts` — are what this chapter is about.
 
+**You need a trained model in this folder.** Check:
+
+```bash
+ls model/
+```
+
+**✓ If you see `model.safetensors`**, you're ready.
+
+**✗ If the model folder is missing**, copy the one from Chapter 07:
+
+```bash
+cp -r ../07-serve-the-model/model .                       # Mac or Linux
+```
+
+```bash
+Copy-Item -Recurse ..\07-serve-the-model\model .         # Windows (PowerShell)
+```
+
+**Install this chapter's Node packages.** This folder adds a new one (the Supabase client), so it needs its own install:
+
+```bash
+npm install
+```
+
+**✓ If it worked**, the last line says something like `added 60 packages`.
+
 **You need the classifier server running.** Open a second terminal, navigate to this chapter folder, and start it:
 
 ```bash

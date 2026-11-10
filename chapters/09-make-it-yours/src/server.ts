@@ -17,13 +17,42 @@
 
 import express, { Request, Response } from "express";
 import { spawn, ChildProcess } from "child_process";
+import fs from "fs";
 import path from "path";
 
 const app = express();
 app.use(express.json());
 
 const PORT = 3000;
-const MODEL_DIR = path.join(process.cwd(), "training", "model");
+
+// The root project keeps the model in training/model/. Chapter folders keep it
+// in model/. Work out which layout we're in from where `npm run start` was run.
+const IS_ROOT_LAYOUT = fs.existsSync(path.join(process.cwd(), "training", "train.py"));
+const MODEL_DIR = IS_ROOT_LAYOUT
+  ? path.join(process.cwd(), "training", "model")
+  : path.join(process.cwd(), "model");
+const TRAIN_HINT = IS_ROOT_LAYOUT ? "python3 training/train.py" : "python3 train.py";
+
+// Use the project's virtual environment if there is one, so the classifier
+// finds torch and transformers without anyone having to activate it first.
+// Checks this folder, then the project root (two levels up from a chapter folder).
+// Set PYTHON=/path/to/python to override.
+function findPython(): string {
+  if (process.env.PYTHON) return process.env.PYTHON;
+  const venvPython =
+    process.platform === "win32"
+      ? path.join(".venv", "Scripts", "python.exe")
+      : path.join(".venv", "bin", "python");
+  const searchDirs = IS_ROOT_LAYOUT
+    ? [process.cwd()]
+    : [process.cwd(), path.resolve(process.cwd(), "..", "..")];
+  for (const dir of searchDirs) {
+    const candidate = path.join(dir, venvPython);
+    if (fs.existsSync(candidate)) return candidate;
+  }
+  return process.platform === "win32" ? "python" : "python3";
+}
+const PYTHON = findPython();
 
 // ─────────────────────────────────────────────
 // Python classifier daemon
@@ -51,7 +80,7 @@ model_dir = sys.argv[1]
 
 if not os.path.exists(model_dir):
     sys.stderr.write(f"[classifier] Model not found at {model_dir}\\n")
-    sys.stderr.write("[classifier] Run: python3 training/train.py\\n")
+    sys.stderr.write(f"[classifier] Run: {sys.argv[2]}\\n")
     sys.exit(1)
 
 tokenizer = AutoTokenizer.from_pretrained(model_dir)
@@ -96,9 +125,13 @@ let pending: { resolve: (v: unknown) => void; reject: (e: Error) => void } | nul
 
 function startClassifier(): Promise<void> {
   return new Promise((resolve, reject) => {
-    console.log("Starting classifier subprocess...");
+    console.log(`Starting classifier subprocess (Python: ${PYTHON})...`);
 
-    classifierProcess = spawn("python3", ["-c", CLASSIFIER_DAEMON, MODEL_DIR]);
+    classifierProcess = spawn(PYTHON, ["-c", CLASSIFIER_DAEMON, MODEL_DIR, TRAIN_HINT]);
+
+    classifierProcess.on("error", (err) => {
+      reject(new Error(`Could not start Python (${PYTHON}): ${err.message}`));
+    });
 
     classifierProcess.stderr?.on("data", (data: Buffer) => {
       process.stdout.write(data.toString());
@@ -213,6 +246,6 @@ startClassifier()
   })
   .catch((err) => {
     console.error("\n[server] Failed to start classifier:", err.message);
-    console.error("[server] Make sure you've run: python3 training/train.py\n");
+    console.error(`[server] Make sure you've run: ${TRAIN_HINT}\n`);
     process.exit(1);
   });

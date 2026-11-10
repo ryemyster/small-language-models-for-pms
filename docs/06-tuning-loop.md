@@ -32,6 +32,18 @@ You should see:
 bad_eval.csv   eval.csv   feedback.csv
 ```
 
+**Turn on the project's Python environment.** Every chapter shares the one setup created in the project root:
+
+```bash
+source ../../.venv/bin/activate       # Mac or Linux
+```
+
+```bash
+..\..\.venv\Scripts\activate          # Windows (PowerShell)
+```
+
+**✓ If it worked**, you'll see `(.venv)` at the start of your terminal prompt.
+
 **You need a trained model.** Check:
 
 ```bash
@@ -40,16 +52,30 @@ ls model/
 
 **✓ If you see `model.safetensors`**, you're ready.
 
-**✗ If the model folder is missing**, run training first:
+**✗ If the model folder is missing**, copy the baseline model from Chapter 05:
 
 ```bash
-python3 -m venv .venv
-source .venv/bin/activate    # Mac/Linux — use .venv\Scripts\activate on Windows
-pip install -r requirements.txt
-python3 train.py
+cp -r ../05-fixed-eval/model .                       # Mac or Linux
 ```
 
-Wait for `=== Done ===`, then come back.
+```bash
+Copy-Item -Recurse ..\05-fixed-eval\model .         # Windows (PowerShell)
+```
+
+Run `ls model/` again. You should see `model.safetensors`.
+
+> [!IMPORTANT]
+> **Don't train in this folder yet.** This folder's `data/feedback.csv` already has the 12 tuning examples this chapter is about. Training now would skip the "before" measurement, and before vs. after is the whole point of this chapter.
+
+**✗ If Chapter 05 doesn't have a model either** (you're starting here), train the baseline there first, then copy it over:
+
+```bash
+cd ../05-fixed-eval
+python3 train.py
+cd ../06-tuning-loop
+```
+
+Then run the copy command above.
 
 ---
 
@@ -81,13 +107,13 @@ python3 score_eval.py --eval data/eval.csv
 Find the F1 column in the output and fill in Run 0:
 
 ```
-| Run 0 (baseline) | today | Nothing | ??% | 0.89 | 0.85 | 0.71 | 0.90 | 0.76 |
+| 0 (baseline) | today | Nothing — first training run | 85% | 0.86 | 0.88 | 0.72 | 0.86 | 0.90 | |
 ```
 
 **Save the file.** Once you retrain, the baseline is gone. If you don't write it down first, you have no way to prove your changes helped.
 
 > [!NOTE]
-> **Your job:** The experiment log is the model's changelog. Without it, "the model got better" is a feeling. With it, it's a fact: `onboarding_friction` F1 went from 0.71 to 0.79 on the fixed eval after adding 10 targeted examples. That's a sentence you can put in a team update or a case for investing more time.
+> **Your job:** The experiment log is the model's changelog. Without it, "the model got better" is a feeling. With it, it's a fact: `onboarding_friction` F1 went from 0.72 to 0.82 on the fixed eval after adding 12 targeted examples. That's a sentence you can put in a team update or a case for investing more time.
 
 ---
 
@@ -95,15 +121,15 @@ Find the F1 column in the output and fill in Run 0:
 
 Look at your baseline F1 scores. You're looking for two things:
 
-**Lowest F1 by label.** That's your weakest category. In our example output from Chapter 05, it's `onboarding_friction` at F1 = 0.71.
+**Lowest F1 by label.** That's your weakest category. In our output from Chapter 05, it's `onboarding_friction` at F1 = 0.72.
 
 **Most common confusion in the matrix.** The `onboarding_friction` row showed:
 
 ```
-onboarding_friction    3    1    14    0    2
+onboarding_friction           4         2        13         1         0
 ```
 
-Three `onboarding_friction` tickets predicted as `bug_report`. That's a pattern, not noise.
+Four `onboarding_friction` tickets predicted as `bug_report`. That's a pattern, not noise.
 
 > [!NOTE]
 > **Your job:** Choosing what to fix first is a prioritization decision, not a technical one. The right choice depends on which failure costs more. If your product team is actively working on an onboarding redesign, getting `onboarding_friction` right matters more this week. If pricing is a board-level concern, fix that first. The eval gives you the data. You make the call.
@@ -120,16 +146,16 @@ This is the step most people skip. Don't skip it.
 Scroll to the mistakes section of your eval output. Find the `onboarding_friction` failures:
 
 ```
-Text:      I set up everything the documentation said and got a blank dashboard...
+Text:      I'm on Windows and the keyboard shortcuts in the docs are all Mac shortcuts. No Windows eq
 Actual:    onboarding_friction
 Predicted: bug_report
 
-Text:      The error message on the import screen says 'invalid format'...
+Text:      The error message on the import screen says 'invalid format' with no explanation of what f
 Actual:    onboarding_friction
 Predicted: bug_report
 ```
 
-Read them carefully. The pattern is specific: onboarding friction examples that describe something *not working during setup* — an error, a blank screen, a stuck step — look like bug reports to the model. Words like "error," "blank," "nothing appeared" appear in bug reports too. The model learned those words as bug signals and doesn't yet have enough signal that the *context* (first-time setup, onboarding) changes the label.
+Read them carefully. The pattern is specific: onboarding friction examples that describe something *not working while a new user gets started* — an error, wrong instructions, a stuck step — look like bug reports to the model. Words like "error," "doesn't work," "wrong" appear in bug reports too. The model learned those words as bug signals and doesn't yet have enough signal that the *context* (first-time setup, onboarding) changes the label.
 
 You're not just adding more `onboarding_friction` examples. You're adding examples that specifically cover the pattern the model is getting wrong: **errors and failures that happen during first-time setup.**
 
@@ -142,7 +168,7 @@ You're not just adding more `onboarding_friction` examples. You're adding exampl
 Scroll to the bottom. The last 12 rows of this file are tuning additions — they were added specifically for this chapter:
 
 - 10 new `onboarding_friction` examples where the onboarding experience involves something broken: errors, stuck steps, OAuth failures, blank screens during setup
-- 2 new `pricing_concern` examples (the second-weakest category)
+- 2 new `pricing_concern` examples about plan limits a new user runs into during signup or a trial. These keep the model from swinging too far: not every surprise during setup is onboarding friction. Sometimes it's a pricing problem.
 
 **Read those 10 `onboarding_friction` rows carefully.** Notice how each one describes something that *isn't working* — but in the context of a new user's first experience, not a general product bug.
 
@@ -155,7 +181,7 @@ This is what targeted training data looks like. You're not padding the dataset �
 
 ## Step 4 — Retrain with one change
 
-The only change between Run 0 and Run 1 is those 10 targeted examples. Nothing else.
+The only change between Run 0 and Run 1 is those 12 targeted examples. Nothing else.
 
 Run training:
 
@@ -163,7 +189,7 @@ Run training:
 python3 train.py
 ```
 
-**✓ Wait for `=== Done ===`.** This takes 15–30 minutes. Go do something else.
+**✓ Wait for `=== Done ===`.** About a minute on a recent laptop, longer on an older one.
 
 **Why only one change:** If you add targeted data AND increase training epochs AND adjust the learning rate in the same run, you'll see a different number but won't know what moved it. Maybe the extra examples helped. Maybe the extra epochs overfit. Maybe the learning rate change hurt `praise`. You can't tell. One variable per run means every result is interpretable.
 
@@ -184,12 +210,23 @@ Look at three things specifically:
 Record in your experiment log:
 
 ```
-| Run 1 | today | +10 onboarding_friction examples (error-during-setup pattern) | ??% | ... |
+| 1 | today | +12 targeted examples (10 onboarding_friction error-during-setup, 2 pricing_concern) | ??% | ... |
 ```
 
 ### What a good result looks like
 
 `onboarding_friction` F1 improves by 0.05–0.10. No other label drops by more than 0.03. Overall accuracy stays flat or improves slightly.
+
+### What we got
+
+When we ran it:
+
+| Run | Overall | bug_report | feature_request | onboarding_friction | praise | pricing_concern |
+|-----|---------|-----------|-----------------|---------------------|--------|-----------------|
+| 0 (baseline) | 85% | 0.86 | 0.88 | 0.72 | 0.86 | 0.90 |
+| 1 (+12 examples) | 87% | 0.89 | 0.85 | **0.82** | 0.89 | 0.90 |
+
+`onboarding_friction` went up 0.10. `feature_request` dipped 0.03. Everything else held or improved. That's a good result. Not every miss got fixed, though: the "invalid format" ticket is still labeled `bug_report`. Your numbers may differ by a few points, but the direction should match.
 
 ### What a bad result looks like
 
@@ -212,7 +249,7 @@ Stop when one of these is true:
 **Good enough for the use case.** If your team is only acting on `bug_report` and `pricing_concern` right now, a model that performs well on those two may be the right place to stop. Don't tune for academic completeness. Tune for the decisions you're actually making.
 
 > [!TIP]
-> **Tradeoff:** More tuning runs = more accurate model, but each run costs 15–30 minutes and requires a human to read the output. At some point, the marginal improvement per run shrinks below the cost of running it. For a weekly Monday-morning classifier, two to three deliberate tuning cycles is usually enough to go from "rough baseline" to "reliable enough to act on."
+> **Tradeoff:** More tuning runs = more accurate model, but each run costs training time (about a minute here, much longer with a bigger dataset) and requires a human to read the output. At some point, the marginal improvement per run shrinks below the cost of running it. For a weekly Monday-morning classifier, two to three deliberate tuning cycles is usually enough to go from "rough baseline" to "reliable enough to act on."
 
 ---
 

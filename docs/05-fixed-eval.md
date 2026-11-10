@@ -32,6 +32,18 @@ You should see:
 bad_eval.csv   eval.csv   feedback.csv
 ```
 
+**Turn on the project's Python environment.** Every chapter shares the one setup created in the project root:
+
+```bash
+source ../../.venv/bin/activate       # Mac or Linux
+```
+
+```bash
+..\..\.venv\Scripts\activate          # Windows (PowerShell)
+```
+
+**✓ If it worked**, you'll see `(.venv)` at the start of your terminal prompt.
+
 **You need a trained model.** Check if it exists:
 
 ```bash
@@ -40,16 +52,19 @@ ls model/
 
 **✓ If you see `model.safetensors`**, you're ready.
 
-**✗ If you see `No such file or directory`**, run training first:
+**✗ If you see `No such file or directory`**, copy the model from Chapter 04. The training data hasn't changed since Chapter 03, so there's no need to train again:
 
 ```bash
-python3 -m venv .venv
-source .venv/bin/activate    # Mac/Linux — use .venv\Scripts\activate on Windows
-pip install -r requirements.txt
-python3 train.py
+cp -r ../04-why-accuracy-lies/model .                       # Mac or Linux
 ```
 
-Wait 15–30 minutes for `=== Done ===`, then come back.
+```bash
+Copy-Item -Recurse ..\04-why-accuracy-lies\model .         # Windows (PowerShell)
+```
+
+Run `ls model/` again. You should see `model.safetensors`.
+
+**✗ If Chapter 04 doesn't have a model either** (you're starting here), train one in this folder with `python3 train.py`. Come back when it says `=== Done ===`.
 
 ---
 
@@ -86,26 +101,28 @@ python3 score_eval.py --eval data/bad_eval.csv
 ```
 === Scoring against data/bad_eval.csv ===
 
-Overall accuracy: 17/20 = 85%
+Overall accuracy: 16/20 = 80.0%
 ```
 
-Pause here. 85%. That looks reasonable.
+Pause here. 80%. That looks reasonable.
 
 Now read what comes after it:
 
 ```
-                     precision  recall  f1-score  support
-bug_report              0.91    1.00      0.95       10
-feature_request         0.75    1.00      0.86        3
-onboarding_friction     1.00    1.00      1.00        2
-pricing_concern         1.00    0.67      0.80        3
-praise                  0.00    0.00      0.00        0
+                     precision    recall  f1-score   support
 
-⚠ 'praise' has only 0 example(s) — score for this label is not reliable
-⚠ 'onboarding_friction' has only 2 example(s) — score for this label is not reliable
+         bug_report       1.00      0.70      0.82        10
+    feature_request       1.00      1.00      1.00         5
+onboarding_friction       0.40      1.00      0.57         2
+             praise       0.00      0.00      0.00         0
+    pricing_concern       1.00      0.67      0.80         3
+
+  ⚠ 'onboarding_friction' has only 2 example(s) — score for this label is not reliable
+  ⚠ 'praise' has only 0 example(s) — score for this label is not reliable
+  ⚠ 'pricing_concern' has only 3 example(s) — score for this label is not reliable
 ```
 
-`praise` has zero examples. `onboarding_friction` has two. Half the rows were copied from training data. The 85% is a number that makes you feel confident. It shouldn't.
+`praise` has zero examples. `onboarding_friction` has two. Three rows were copied from training data, and a handful are one-word tickets nobody really writes. The 80% looks like information. It isn't.
 
 **This is the failure mode that causes real teams to ship bad models.** Not because they didn't evaluate. Because they evaluated badly.
 
@@ -119,22 +136,23 @@ Now run the eval that was built to avoid every one of those problems:
 python3 score_eval.py --eval data/eval.csv
 ```
 
-**✓ You should see something like:**
+**✓ You should see something like this.** These are the numbers we got. Yours may differ by a few points depending on your computer, but the pattern should be the same.
 
 ```
 === Scoring against data/eval.csv ===
 
-Overall accuracy: 81/100 = 81%
+Overall accuracy: 85/100 = 85.0%
 
-                     precision  recall  f1-score  support
-bug_report              0.88    0.90      0.89       20
-feature_request         0.85    0.85      0.85       20
-onboarding_friction     0.72    0.70      0.71       20
-praise                  0.90    0.90      0.90       20
-pricing_concern         0.78    0.75      0.76       20
+                     precision    recall  f1-score   support
+
+         bug_report       0.79      0.95      0.86        20
+    feature_request       0.86      0.90      0.88        20
+onboarding_friction       0.81      0.65      0.72        20
+             praise       0.94      0.80      0.86        20
+    pricing_concern       0.86      0.95      0.90        20
 ```
 
-81% vs 85%. The lower number tells you more. Here's what's different about this eval:
+80% on the bad eval. 85% on this one. The fixed eval scored *higher* — and it's still the only one of the two you should trust. The bad eval's number wasn't too optimistic or too pessimistic. It was noise: 20 rows, one label missing entirely, a few copied answers, and a few one-word tickets. Each of its rows swings the score by 5 points. Here's what's different about this eval:
 
 - **100 examples, 20 per label** — enough to surface a real weakness in any category
 - **Zero overlap with training data** — verified before it was built
@@ -159,13 +177,13 @@ Compare your F1 scores across labels:
 
 | Label | F1 | What it means |
 |-------|----|---------------|
-| `praise` | 0.90 | Strong — model clearly recognizes positive feedback |
-| `bug_report` | 0.89 | Strong — highest-volume category performs well |
-| `feature_request` | 0.85 | Good — some confusion at boundaries |
-| `pricing_concern` | 0.76 | Needs work — missing or mislabeling 1 in 4 |
-| `onboarding_friction` | 0.71 | Weakest — systematic confusion with `bug_report` |
+| `pricing_concern` | 0.90 | Strong — catches almost every pricing complaint |
+| `feature_request` | 0.88 | Strong — a couple get mistaken for pricing |
+| `bug_report` | 0.86 | Good — catches nearly every bug, but other tickets get pulled in too |
+| `praise` | 0.86 | Good — when it says praise it's right, but it misses 1 in 5 |
+| `onboarding_friction` | 0.72 | Weakest — misses 1 in 3, mostly to `bug_report` |
 
-The overall 81% hides this spread. If you only looked at the top line, you'd think the model was performing uniformly. It isn't. `onboarding_friction` is your problem and `pricing_concern` is close behind.
+The overall 85% hides this spread. If you only looked at the top line, you'd think the model was performing uniformly. It isn't. Four labels sit between 0.86 and 0.90. `onboarding_friction` is 0.14 below the next one up. That's your problem.
 
 ---
 
@@ -177,12 +195,12 @@ After the per-label results, you'll see a grid called the confusion matrix:
 Confusion matrix:
 (Rows = actual label, Columns = predicted label)
 
-                        bug_rep  feature  onboard    praise  pricing
-bug_report                   18        0        1         0        1
-feature_request               0       17        1         0        2
-onboarding_friction           3        1       14         0        2
-praise                        0        1        0        18        1
-pricing_concern               1        1        3         0       15
+                       bug_repo  feature_  onboardi    praise  pricing_
+bug_report                   19         1         0         0         0
+feature_request               0        18         0         0         2
+onboarding_friction           4         2        13         1         0
+praise                        1         0         2        16         1
+pricing_concern               0         0         1         0        19
 ```
 
 **How to read it:**
@@ -194,12 +212,12 @@ pricing_concern               1        1        3         0       15
 **Find the `onboarding_friction` row:**
 
 ```
-onboarding_friction    3    1    14    0    2
+onboarding_friction           4         2        13         1         0
 ```
 
-14 correct. But 3 labeled as `bug_report`, 2 as `pricing_concern`, 1 as `feature_request`.
+13 correct. But 4 labeled as `bug_report`, 2 as `feature_request`, 1 as `praise`.
 
-The pattern is clear: the model confuses onboarding friction with bug reports. It's not random — it's a specific failure. When a new user describes something broken during setup ("nothing appeared in the dashboard," "the error message on import screen"), the model sees the word "error" and reaches for `bug_report`.
+The pattern is clear: the model confuses onboarding friction with bug reports. It's not random — it's a specific failure. When a new user describes something going wrong while they're getting started ("the error message on the import screen," "the docs say to click a button that isn't there"), the model sees something broken and reaches for `bug_report`.
 
 That's actionable. You know the exact fix. Chapter 06 is where you apply it.
 
@@ -210,18 +228,19 @@ That's actionable. You know the exact fix. Chapter 06 is where you apply it.
 After the confusion matrix, you'll see the specific tickets the model got wrong:
 
 ```
-Mistakes (19/100):
-
-  Text:      I set up everything the documentation said and got a blank dashboard...
+Mistakes (15/100):
+  ...
+  Text:      I'm on Windows and the keyboard shortcuts in the docs are all Mac shortcuts. No Windows eq
   Actual:    onboarding_friction
   Predicted: bug_report
 
-  Text:      The error message on the import screen says 'invalid format'...
+  Text:      The error message on the import screen says 'invalid format' with no explanation of what f
   Actual:    onboarding_friction
   Predicted: bug_report
+  ...
 ```
 
-**Read every mistake.** Don't just look at the counts. The pattern — two `onboarding_friction` examples both predicted as `bug_report` at the top of the list — is the model's current misunderstanding made visible.
+The script shows the first 10 mistakes. **Read every one.** Don't just look at the counts. The pattern — new users stuck on something that's wrong in the product or the docs, predicted as `bug_report` — is the model's current misunderstanding made visible.
 
 ---
 
@@ -280,7 +299,7 @@ You have two eval files and a scoring script that tells you the truth:
 | `data/eval.csv` | Fixed, trustworthy baseline | After every training run |
 | `score_eval.py` | Runs either eval against your model | Any time |
 
-Your baseline scores are recorded. You know exactly which label is weakest (`onboarding_friction`, F1 = 0.71) and why (confused with `bug_report` on error-during-setup tickets).
+Your baseline scores are recorded. You know exactly which label is weakest (`onboarding_friction`, F1 = 0.72) and why (confused with `bug_report` on error-during-setup tickets).
 
 Chapter 06 is where you fix it.
 
