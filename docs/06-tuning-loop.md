@@ -44,7 +44,7 @@ source ../../.venv/bin/activate       # Mac or Linux
 
 **✓ If it worked**, you'll see `(.venv)` at the start of your terminal prompt.
 
-**You need a trained model.** Check:
+**You need the Chapter 05 baseline.** Check whether this folder has it:
 
 ```bash
 ls model/
@@ -52,7 +52,13 @@ ls model/
 
 **✓ If you see `model.safetensors`**, you're ready.
 
-**✗ If the model folder is missing**, copy the baseline model from Chapter 05:
+**✗ If the model folder is missing**, check whether you finished Chapter 05:
+
+```bash
+ls ../05-fixed-eval/model/
+```
+
+**✓ If you see `model.safetensors` there**, copy it into this folder:
 
 ```bash
 cp -r ../05-fixed-eval/model .                       # Mac or Linux
@@ -67,15 +73,18 @@ Run `ls model/` again. You should see `model.safetensors`.
 > [!IMPORTANT]
 > **Don't train in this folder yet.** This folder's `data/feedback.csv` already has the 12 tuning examples this chapter is about. Training now would skip the "before" measurement, and before vs. after is the whole point of this chapter.
 
-**✗ If Chapter 05 doesn't have a model either** (you're starting here), train the baseline there first, then copy it over:
+**✗ If Chapter 05 has no model either** (you skipped it), you can still do this chapter using the guide's baseline. Run 0 in this folder's `experiment-log.md` is already filled in with the numbers we got in Chapter 05, and this doc shows the output they came from. You'll skip measuring the baseline yourself and go straight to diagnosing and retraining.
 
-```bash
-cd ../05-fixed-eval
-python3 train.py
-cd ../06-tuning-loop
-```
-
-Then run the copy command above.
+> [!WARNING]
+> **The guide's baseline makes your before-vs-after comparison rougher.** Your "after" will come from your computer. Our "before" came from ours, and that difference alone can move scores by a few points ([why](getting_started.md#your-numbers-wont-match-ours-exactly--and-thats-expected)). Treat changes of 2–3 points as noise. For a clean comparison, train your own baseline first. It takes about a minute:
+>
+> ```bash
+> cd ../05-fixed-eval
+> python3 train.py
+> cd ../06-tuning-loop
+> ```
+>
+> Then run the copy command above.
 
 ---
 
@@ -98,17 +107,19 @@ Then run the copy command above.
 
 **Open `chapters/06-tuning-loop/experiment-log.md` in your text editor.**
 
-If you recorded your baseline in Chapter 05, copy those numbers here. If you didn't, run the fixed eval now:
+Run 0 is already filled in with the guide's numbers. The Date column says `guide` so it's clear where they came from:
+
+```
+| 0 (baseline) | guide | Nothing — first training run | 85% | 0.86 | 0.88 | 0.72 | 0.86 | 0.90 | Guide's numbers ... |
+```
+
+**Ran Chapter 05?** Replace Run 0 with your row from `chapters/05-fixed-eval/experiment-log.md`. Didn't write it down? The model in this folder is still the baseline, so run the fixed eval now and use those numbers:
 
 ```bash
 python3 score_eval.py --eval data/eval.csv
 ```
 
-Find the F1 column in the output and fill in Run 0:
-
-```
-| 0 (baseline) | today | Nothing — first training run | 85% | 0.86 | 0.88 | 0.72 | 0.86 | 0.90 | |
-```
+**Using the guide's baseline?** Leave Run 0 as it is. When this doc says "your output" in Steps 1 and 2, use the output shown in this doc instead.
 
 **Save the file.** Once you retrain, the baseline is gone. If you don't write it down first, you have no way to prove your changes helped.
 

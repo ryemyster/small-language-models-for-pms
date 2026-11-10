@@ -54,6 +54,20 @@ If you ever get confused about where you are, look at your terminal prompt. It s
 
 ---
 
+### Your numbers won't match ours exactly — and that's expected
+
+Every score in these chapters is real output: we ran each step and pasted what we got. When you run them, your numbers will usually land within a few points of ours, not exactly on them. Three reasons:
+
+- **Training starts from random numbers.** Before training, the part of the model that picks a label starts out filled with random values. `train.py` fixes the random starting point (that's the `set_seed(42)` line), so training twice on the same computer gives you the same model. That's what makes before-and-after comparisons fair.
+- **Different chips do the math slightly differently.** A Mac's graphics chip, an NVIDIA graphics card, and a plain processor round numbers in slightly different ways. Over hundreds of training steps, tiny differences add up to a slightly different model. On the same Mac, we got 85% on the fixed eval using its graphics chip and 83% using the processor alone.
+- **Software versions change results.** `requirements.txt` pins exact versions so everyone starts from the same software. Install different versions and expect different numbers.
+
+**What should match is the pattern:** which label is weakest, where the model gets confused, and whether a change helped. If your scores are far below ours — more than about 10 points — something probably went wrong. Check the troubleshooting section in Chapter 03.
+
+This is a real-world lesson too. Model results are only comparable when they come from the same setup. When you compare two training runs, use the same computer, the same eval, and change one thing. That's exactly what the experiment log in Chapter 06 is for.
+
+---
+
 ## The fast path: one setup script
 
 Once you've installed Python, Node.js, and Ollama (steps 1–3 below), run this from the project folder and it will handle the rest:

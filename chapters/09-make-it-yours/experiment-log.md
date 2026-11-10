@@ -2,11 +2,11 @@
 
 Record every training run here. One row per run. Never change a previous row — if a result was wrong, add a note column.
 
-The fixed eval (`training/data/eval.csv`) must be used for every row. If you change the eval, start a new section and note why.
+The fixed eval (`data/eval.csv`) must be used for every row. If you change the eval, start a new section and note why.
 
 ---
 
-## Fixed eval: training/data/eval.csv (100 examples, 20 per label)
+## Fixed eval: data/eval.csv (100 examples, 20 per label)
 
 | Run | Date | What changed | Overall | bug_report F1 | feature_request F1 | onboarding_friction F1 | praise F1 | pricing_concern F1 | Notes |
 |-----|------|-------------|---------|--------------|-------------------|----------------------|-----------|-------------------|-------|

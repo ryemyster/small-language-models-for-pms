@@ -198,15 +198,51 @@ Each result arrives in under a second. The model is reading that text, breaking 
 
 Notice that every label above is right, but some confidence numbers are low — 45% on an obvious feature request. A small model trained on 175 examples is often right without being sure. Don't read confidence as "chance this label is correct." Read it as "how strongly the model leans."
 
-> [!NOTE]
-> **Your job:** Low-confidence results are flags, not failures. In a real workflow, you'd set a threshold: classify automatically above it, route to human review below it. Pick it from evidence, not intuition. Score your fixed eval, then check how often the model is right above and below a few candidate thresholds. With confidence numbers like the ones above, an 80% cutoff would send most tickets to a human. That threshold is a product decision: how much do you trust the model vs. how much do you need a human in the loop?
-
 > [!IMPORTANT]
 > **Customer impact:** With the model running as a service, classification happens automatically as tickets arrive — not manually every Monday morning. A `bug_report` filed at 2am on a Sunday reaches the engineering queue before the team starts work, not after someone runs a script. Speed of routing is speed of response.
 
 ---
 
-## Step 5 — Call the endpoint directly
+## Step 5 — Pick a confidence threshold from evidence
+
+In a real workflow you'd set a threshold: label tickets automatically when the model is confident enough, and send the rest to a person. Don't pick that number by gut feel. Measure it.
+
+In your second terminal (the one that isn't running the server), turn on the Python environment if it isn't already, then score the fixed eval:
+
+```bash
+source ../../.venv/bin/activate       # Windows: ..\..\.venv\Scripts\activate
+python3 score_eval.py --eval data/eval.csv
+```
+
+Scroll to the end of the output. **✓ You should see a confidence check like this** (these are our numbers; yours will differ a little):
+
+```
+Confidence check:
+(If you only auto-labeled tickets at or above a confidence level,
+ how many would be labeled, and how often would those labels be right?)
+
+  Confidence  Auto-labeled   Right   Accuracy   Sent to a person
+  any         100/100        87      87%        0
+  >= 40%      80/100         72      90%        20
+  >= 50%      51/100         48      94%        49
+  >= 60%      27/100         24      89%        73
+  >= 70%      15/100         14      93%        85
+  >= 80%      5/100          5       100%       95
+  >= 90%      0/100          0       —          100
+```
+
+Read it one row at a time. Each row answers: *if I only trusted labels at or above this confidence, how much work would the model take off my plate, and how often would it be right?*
+
+- **At 50%**, the model labels about half the tickets and gets 94% of those right. The other half go to a person.
+- **At 80%**, it's right every time — but only on 5 tickets. Everything else goes to a person. That's not automation.
+- **Accuracy doesn't climb neatly** as the threshold goes up (89% at 60% is lower than 94% at 50%). With only 100 rows, each row in a small group moves the percentage a lot. Look at the trend, not single rows.
+
+> [!NOTE]
+> **Your job:** The threshold is a product decision, not a technical one. The table tells you the trade: more automation, or fewer wrong labels. Which costs more for your team — a person reading a ticket the model could have handled, or a pricing complaint quietly filed as praise? Pick the row you'd defend in a team meeting.
+
+---
+
+## Step 6 — Call the endpoint directly
 
 You don't need the `classify.ts` script to use the endpoint. Any HTTP request works. **Open your terminal and try this:**
 
@@ -226,7 +262,7 @@ This is the integration point. A Zendesk webhook, an NPS survey processor, a Sla
 
 ---
 
-## Step 6 — Check server health
+## Step 7 — Check server health
 
 ```bash
 curl http://localhost:3000/health
@@ -242,7 +278,7 @@ If the model is still loading, `status` will be `"loading"`. If the server crash
 
 ---
 
-## Step 7 — Compare your model against Ollama
+## Step 8 — Compare your model against Ollama
 
 **Make sure Ollama is running.** On Mac, look for the llama icon in your menu bar. If it's not there, open the Ollama app.
 

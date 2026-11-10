@@ -19,7 +19,7 @@ ls
 You should see:
 
 ```
-README.md   data/   requirements.txt   score_eval.py   train.py
+README.md   data/   experiment-log.md   requirements.txt   score_eval.py   train.py
 ```
 
 ```bash
@@ -242,19 +242,21 @@ Mistakes (15/100):
 
 The script shows the first 10 mistakes. **Read every one.** Don't just look at the counts. The pattern — new users stuck on something that's wrong in the product or the docs, predicted as `bug_report` — is the model's current misunderstanding made visible.
 
+Below the mistakes there's one more section, `Confidence check`. Skip it for now. You'll use it in Chapter 07 to decide when to trust the model on its own.
+
 ---
 
 ## Record your baseline scores
 
-**Open `training/experiment-log.md` in your text editor.**
+**Open `chapters/05-fixed-eval/experiment-log.md` in your text editor.**
 
-Fill in Run 0 with the scores from your fixed eval:
+Fill in Run 0 with the scores from your fixed eval. With our numbers, it looks like this:
 
 ```
-| Run 0 (baseline) | today | Nothing | ??% | ___ | ___ | ___ | ___ | ___ |
+| 0 (baseline) | today | Nothing — first training run | 85% | 0.86 | 0.88 | 0.72 | 0.86 | 0.90 | |
 ```
 
-Fill in the F1 column for each label from your output. **Write this down before you move on.** Once you retrain in Chapter 06, these numbers are gone. You need them to prove that your changes actually helped.
+Fill in the F1 column for each label from your output. **Write this down before you move on.** Once you retrain in Chapter 06, these numbers are gone. You need them to prove that your changes actually helped. Chapter 06 will ask you to copy this row over.
 
 > [!IMPORTANT]
 > **This is not optional.** If you skip recording the baseline, you'll have no way to know in Chapter 06 whether your tuning improved anything. You'll just have a new number with nothing to compare it to.

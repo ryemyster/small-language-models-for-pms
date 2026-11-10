@@ -242,6 +242,9 @@ model/
 
 Find the `accuracy` line in the per-category results. When we ran it, the baseline came out at **0.88**: 88% of the 33 test examples. Your number may differ by a few points, depending on your computer. Anywhere from the mid-80s to low 90s is normal for a first baseline with ~160 training examples.
 
+> [!NOTE]
+> **Why might yours be different?** Models start from random numbers, and different computers do the math slightly differently. [Getting Started explains it](getting_started.md#your-numbers-wont-match-ours-exactly--and-thats-expected) in plain terms. Short version: expect a few points of difference from the numbers in this guide, but the same overall pattern.
+
 **This number is not a verdict.** Here's why:
 
 88% on 33 test examples means the model got 29 right and 4 wrong. That's not enough data to know whether those 4 mistakes are a fluke or a systematic problem. It doesn't tell you which categories are weak. It doesn't tell you whether the model would hold up on the real Monday-morning inbox — 340 tickets it's never seen, including weird phrasings, sarcasm, and messages that straddle two categories.
