@@ -2,13 +2,14 @@
 score_eval.py — Score a saved model against any labeled eval CSV.
 
 Usage:
-  python3 training/score_eval.py --eval training/data/bad_eval.csv
-  python3 training/score_eval.py --eval training/data/eval.csv
+  python3 score_eval.py --eval data/eval.csv                     (inside a chapter folder)
+  python3 training/score_eval.py --eval training/data/eval.csv   (from the project root)
 
-The model must already be trained. Run training/train.py first if you
-haven't yet.
+The model must already be trained. Run train.py first if you haven't yet.
+It's loaded from model/ next to this file, wherever you run the script from.
 
-Output: overall accuracy, per-label F1, confusion matrix, and the rows it got wrong.
+Output: overall accuracy, per-label F1, confusion matrix, the rows it got wrong,
+and a confidence check (how accurate the model is above different confidence levels).
 """
 
 import sys
@@ -27,15 +28,17 @@ import torch
 from sklearn.metrics import classification_report, confusion_matrix
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 
-MODEL_DIR = "training/model"
+# The model lives next to this file (training/model at the root, model/ in a chapter).
+MODEL_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "model")
+MODEL_DIR_SHOWN = os.path.relpath(MODEL_DIR)
 TEXT_COLUMN = "text"
 LABEL_COLUMN = "label"
 
 
 def load_model():
     if not os.path.exists(MODEL_DIR):
-        print(f"\n[ERROR] No trained model found at {MODEL_DIR}/")
-        print("  Fix: run python3 training/train.py first\n")
+        print(f"\n[ERROR] No trained model found at {MODEL_DIR_SHOWN}/")
+        print("  Fix: run train.py first (it's in the same folder as this script)\n")
         sys.exit(1)
     tokenizer = AutoTokenizer.from_pretrained(MODEL_DIR)
     model = AutoModelForSequenceClassification.from_pretrained(MODEL_DIR)
@@ -53,8 +56,30 @@ def predict(texts, tokenizer, model):
     )
     with torch.no_grad():
         logits = model(**inputs).logits
-    predicted_ids = logits.argmax(dim=-1).tolist()
-    return [model.config.id2label[i] for i in predicted_ids]
+    # Confidence = the probability the model gives its winning label (softmax turns
+    # raw scores into probabilities that add up to 1 across the five labels).
+    confidences, predicted_ids = torch.softmax(logits, dim=-1).max(dim=-1)
+    labels = [model.config.id2label[i] for i in predicted_ids.tolist()]
+    return labels, confidences.tolist()
+
+
+# Confidence levels to check. "Auto-label at or above this, send the rest to a person."
+THRESHOLDS = [0.0, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
+
+
+def print_confidence_check(true_labels, pred_labels, confidences):
+    total = len(true_labels)
+    print("\nConfidence check:")
+    print("(If you only auto-labeled tickets at or above a confidence level,")
+    print(" how many would be labeled, and how often would those labels be right?)\n")
+    print(f"  {'Confidence':<12}{'Auto-labeled':<15}{'Right':<8}{'Accuracy':<11}Sent to a person")
+    for threshold in THRESHOLDS:
+        kept = [(t, p) for t, p, c in zip(true_labels, pred_labels, confidences) if c >= threshold]
+        right = sum(t == p for t, p in kept)
+        level = "any" if threshold == 0 else f">= {threshold:.0%}"
+        accuracy = f"{right / len(kept):.0%}" if kept else "—"
+        print(f"  {level:<12}{f'{len(kept)}/{total}':<15}{right:<8}{accuracy:<11}{total - len(kept)}")
+    print("\n  Pick the lowest level whose accuracy you'd accept. Everything below it goes to a person.")
 
 
 def main():
@@ -66,7 +91,7 @@ def main():
         print(f"\n[ERROR] Eval file not found: {args.eval}\n")
         sys.exit(1)
 
-    print(f"\n=== Loading model from {MODEL_DIR}/ ===")
+    print(f"\n=== Loading model from {MODEL_DIR_SHOWN}/ ===")
     tokenizer, model = load_model()
     labels = list(model.config.label2id.keys())
 
@@ -74,7 +99,7 @@ def main():
     df = pd.read_csv(args.eval)
     texts = df[TEXT_COLUMN].tolist()
     true_labels = df[LABEL_COLUMN].tolist()
-    pred_labels = predict(texts, tokenizer, model)
+    pred_labels, confidences = predict(texts, tokenizer, model)
 
     correct = sum(t == p for t, p in zip(true_labels, pred_labels))
     total = len(true_labels)
@@ -124,6 +149,8 @@ def main():
         print(f"  Predicted: {pred}")
     if len(mistakes) > 10:
         print(f"\n  ... and {len(mistakes) - 10} more")
+
+    print_confidence_check(true_labels, pred_labels, confidences)
 
     print("\n=== Done ===")
     if accuracy > 0.85 and total < 30:

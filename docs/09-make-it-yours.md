@@ -159,7 +159,7 @@ Your fixed eval needs:
 ### Step 4 — Train the baseline
 
 ```bash
-source .venv/bin/activate    # Mac/Linux
+source ../../.venv/bin/activate    # Mac/Linux — Windows: ..\..\.venv\Scripts\activate
 python3 train.py
 ```
 

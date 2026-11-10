@@ -9,8 +9,9 @@ venv/
 .claude/
 CLAUDE.md
 
-# Model artifacts — too large to commit, regenerate by running training/train.py
-training/model/
+# Model artifacts — too large to commit, regenerate by running train.py
+# (training/model/ at the root, model/ in each chapter folder)
+model/
 
 # Environment variables — never commit secrets
 .env

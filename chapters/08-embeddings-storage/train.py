@@ -7,12 +7,16 @@ This script does four things:
   3. Fine-tunes the model on that data
   4. Evaluates how well it performs and saves it for use
 
-Run it with: python3 training/train.py
-Expected time: 15–30 minutes on a laptop CPU. No GPU required.
+Run it with:
+  python3 training/train.py    (from the project root)
+  python3 train.py             (from inside a chapter folder)
+Either way, it reads data/feedback.csv and writes model/ next to this file.
+Expected time: about a minute on a recent laptop, longer on older ones. No GPU required.
 """
 
 import sys
 import os
+import shutil
 
 # Preflight: check for accelerate, which HuggingFace Trainer requires.
 # If this fails, run: pip install -r requirements.txt
@@ -33,18 +37,32 @@ from transformers import (
     AutoModelForSequenceClassification,
     TrainingArguments,
     Trainer,
+    set_seed,
 )
 import torch
+
+# Fix the random starting point so the same data gives the same model every run
+# (on the same computer). Without this, scores wobble by several points between
+# identical runs — and you can't tell whether a change helped or you got lucky.
+set_seed(42)
 
 # ─────────────────────────────────────────────
 # CONSTANTS — the only things you need to change
 # if you want to train on your own data.
 # ─────────────────────────────────────────────
 
-DATA_PATH = "training/data/feedback.csv"   # path to your labeled CSV
-TEXT_COLUMN = "text"                        # column name for the input text
-LABEL_COLUMN = "label"                      # column name for the category
-OUTPUT_DIR = "training/model"              # where to save the trained model
+# Paths are relative to this file, not to wherever you run it from.
+# That's what lets the same script work at the root and in every chapter folder.
+HERE = os.path.dirname(os.path.abspath(__file__))
+
+DATA_PATH = os.path.join(HERE, "data", "feedback.csv")   # path to your labeled CSV
+TEXT_COLUMN = "text"                                      # column name for the input text
+LABEL_COLUMN = "label"                                    # column name for the category
+OUTPUT_DIR = os.path.join(HERE, "model")                 # where to save the trained model
+
+# Short versions of the paths, for printing
+DATA_PATH_SHOWN = os.path.relpath(DATA_PATH)
+OUTPUT_DIR_SHOWN = os.path.relpath(OUTPUT_DIR)
 
 
 # ─────────────────────────────────────────────
@@ -83,7 +101,7 @@ print("This model already understands English. We're adding your categories on t
 # Test set: examples it has never seen, used to measure real accuracy.
 # ─────────────────────────────────────────────
 
-print(f"\n=== Step 2: Loading data from {DATA_PATH} ===")
+print(f"\n=== Step 2: Loading data from {DATA_PATH_SHOWN} ===")
 
 df = pd.read_csv(DATA_PATH)
 
@@ -126,7 +144,7 @@ test_dataset = Dataset.from_pandas(test_df[[TEXT_COLUMN, "label_id"]].rename(
 #
 # Fine-tuning: running training examples through the model, comparing its
 # prediction to the correct label, and adjusting the model's internal numbers
-# slightly in the direction of the right answer. Repeat ~3 times over all examples.
+# slightly in the direction of the right answer. Repeat 6 times over all examples.
 # ─────────────────────────────────────────────
 
 print(f"\n=== Step 3: Tokenizing and fine-tuning ===")
@@ -151,20 +169,22 @@ model = AutoModelForSequenceClassification.from_pretrained(
 )
 
 # Training configuration
-# num_train_epochs=3: pass through the full training set 3 times
+# num_train_epochs=6: pass through the full training set 6 times. With only ~130
+#   training examples, 3 passes isn't enough — the model barely moves from a guess.
 # per_device_train_batch_size=16: process 16 examples at a time (reduce to 8 if you run out of memory)
-# learning_rate=2e-5: how much to adjust the model's numbers on each step (standard for fine-tuning)
+# learning_rate=5e-5: how much to adjust the model's numbers on each step. Small datasets
+#   need a slightly bigger step than the common 2e-5 default to learn in a few passes.
 # eval_strategy="epoch": check accuracy on the test set after each full pass through training data
 training_args = TrainingArguments(
     output_dir=OUTPUT_DIR,
-    num_train_epochs=3,
+    num_train_epochs=6,
     per_device_train_batch_size=16,
     per_device_eval_batch_size=16,
-    learning_rate=2e-5,
+    learning_rate=5e-5,
     eval_strategy="epoch",
     save_strategy="epoch",
     load_best_model_at_end=True,
-    logging_dir=os.path.join(OUTPUT_DIR, "logs"),
+    save_total_limit=1,   # keep at most one in-progress checkpoint on disk (~750MB each)
     logging_steps=10,
     report_to="none",   # disable Weights & Biases — we don't need external tracking
 )
@@ -174,7 +194,7 @@ trainer = Trainer(
     args=training_args,
     train_dataset=train_dataset,
     eval_dataset=test_dataset,
-    tokenizer=tokenizer,
+    processing_class=tokenizer,   # the tokenizer, saved alongside the model
 )
 
 trainer.train()
@@ -182,7 +202,14 @@ trainer.train()
 print("\nTraining complete. Saving model...")
 trainer.save_model(OUTPUT_DIR)
 tokenizer.save_pretrained(OUTPUT_DIR)
-print(f"Model saved to {OUTPUT_DIR}/")
+
+# Checkpoints are only useful while training runs. The best model is now saved
+# in OUTPUT_DIR itself, so delete them and keep the folder at ~250MB.
+for name in os.listdir(OUTPUT_DIR):
+    if name.startswith("checkpoint-"):
+        shutil.rmtree(os.path.join(OUTPUT_DIR, name))
+
+print(f"Model saved to {OUTPUT_DIR_SHOWN}/")
 
 
 # ─────────────────────────────────────────────
@@ -242,7 +269,7 @@ else:
     print("  If accuracy is 100%, your test set may be too small or too similar to training data.")
 
 print("\n=== Done ===")
-print(f"Model saved to: {OUTPUT_DIR}/")
+print(f"Model saved to: {OUTPUT_DIR_SHOWN}/")
 print("")
 print("These numbers are your baseline — the first rough draft.")
 print("Don't ship based on them. Chapter 04 explains why a good-looking score")

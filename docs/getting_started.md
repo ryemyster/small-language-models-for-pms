@@ -2,7 +2,7 @@
 
 You do not need to be a developer to follow this tutorial. This guide will walk you through everything — what to install, how to run the code, and what to look for to know it's working.
 
-Set aside about 30 minutes for the initial setup. Training the model takes another 20 minutes, but you can walk away while it runs.
+Set aside about 30 minutes for the initial setup. Training the model itself is quick: about a minute on a recent laptop, longer on an older one.
 
 ---
 
@@ -36,7 +36,7 @@ chapters/03-train-baseline/
 
 You don't need to copy files from Chapter 02. They're already there.
 
-**What's NOT included:** The trained model (`model/` folder). It's too large to store in git. Any chapter that needs a trained model will tell you to run `python3 train.py` first — that generates the `model/` folder in about 20 minutes.
+**What's NOT included:** The trained model (`model/` folder). It's too large to store in git. You train it once in Chapter 03 and copy it forward from chapter to chapter. Each chapter's "Before you start" section tells you exactly what to copy, or when to train.
 
 ---
 
@@ -51,6 +51,20 @@ If you ever get confused about where you are, look at your terminal prompt. It s
 ```
 .../small-language-models-for-pms/chapters/03-train-baseline %
 ```
+
+---
+
+### Your numbers won't match ours exactly — and that's expected
+
+Every score in these chapters is real output: we ran each step and pasted what we got. When you run them, your numbers will usually land within a few points of ours, not exactly on them. Three reasons:
+
+- **Training starts from random numbers.** Before training, the part of the model that picks a label starts out filled with random values. `train.py` fixes the random starting point (that's the `set_seed(42)` line), so training twice on the same computer gives you the same model. That's what makes before-and-after comparisons fair.
+- **Different chips do the math slightly differently.** A Mac's graphics chip, an NVIDIA graphics card, and a plain processor round numbers in slightly different ways. Over hundreds of training steps, tiny differences add up to a slightly different model. On the same Mac, we got 85% on the fixed eval using its graphics chip and 83% using the processor alone.
+- **Software versions change results.** `requirements.txt` pins exact versions so everyone starts from the same software. Install different versions and expect different numbers.
+
+**What should match is the pattern:** which label is weakest, where the model gets confused, and whether a change helped. If your scores are far below ours — more than about 10 points — something probably went wrong. Check the troubleshooting section in Chapter 03.
+
+This is a real-world lesson too. Model results are only comparable when they come from the same setup. When you compare two training runs, use the same computer, the same eval, and change one thing. That's exactly what the experiment log in Chapter 06 is for.
 
 ---
 
@@ -98,7 +112,10 @@ python3 --version
 
 Python is the programming language we use to train the model.
 
-Go to [python.org/downloads](https://www.python.org/downloads/) and download Python 3.10 or higher. Run the installer. On Windows, check the box that says "Add Python to PATH" before clicking Install.
+Go to [python.org/downloads](https://www.python.org/downloads/) and download Python 3.11 or higher. Run the installer. On Windows, check the box that says "Add Python to PATH" before clicking Install.
+
+> [!NOTE]
+> **Using an older Intel Mac?** The training library this tutorial uses (PyTorch) no longer publishes installers for Intel Macs. You'll need an Apple Silicon Mac (M1 or newer), Windows, or Linux.
 
 **To confirm it worked**, open your terminal and run:
 
@@ -247,10 +264,10 @@ added 47 packages in 3s
 
 ## Step 7: Pull the Ollama comparison model
 
-This downloads the local language model we'll compare against in Chapter 07. TinyLlama is small — about 640MB — so it downloads in a minute or two even on a slow connection.
+This downloads the general-purpose language model your model goes up against in Chapter 07. It's small for a general model — about 1GB to download, and it needs about 1GB of memory while it runs — so it fits on most laptops.
 
 ```
-ollama pull tinyllama
+ollama pull qwen2.5:1.5b
 ```
 
 You should see a progress bar, then:
@@ -266,7 +283,7 @@ success
 Run these commands to confirm everything is in place:
 
 ```bash
-python3 --version        # should show Python 3.10 or higher
+python3 --version        # should show Python 3.11 or higher
 node --version           # should show v20 or higher
 ollama list              # should respond without error
 python3 -c "import transformers, datasets, sklearn, pandas, accelerate, torch; print('Python deps OK')"

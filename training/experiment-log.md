@@ -2,16 +2,18 @@
 
 Record every training run here. One row per run. Never change a previous row — if a result was wrong, add a note column.
 
-The fixed eval (`training/data/eval.csv`) must be used for every row. If you change the eval, start a new section and note why.
+The fixed eval (`data/eval.csv`) must be used for every row. If you change the eval, start a new section and note why.
+
+Rows marked `guide` in the Date column are the numbers this tutorial's author got. They're here so you can keep going if you skipped a chapter, and they're the only rows you should overwrite. Your own runs will differ by a few points — see [Getting Started](../docs/getting_started.md#your-numbers-wont-match-ours-exactly--and-thats-expected).
 
 ---
 
-## Fixed eval: training/data/eval.csv (100 examples, 20 per label)
+## Fixed eval: data/eval.csv (100 examples, 20 per label)
 
 | Run | Date | What changed | Overall | bug_report F1 | feature_request F1 | onboarding_friction F1 | praise F1 | pricing_concern F1 | Notes |
 |-----|------|-------------|---------|--------------|-------------------|----------------------|-----------|-------------------|-------|
-| 0 (baseline) | | Nothing — first training run | | | | | | | Fill in from Chapter 05 eval output |
-| 1 | | | | | | | | | |
+| 0 (baseline) | guide | Nothing — first training run | 85% | 0.86 | 0.88 | 0.72 | 0.86 | 0.90 | **Guide's numbers** from Chapter 05. Ran Chapter 05 yourself? Replace this row with yours. |
+| 1 | guide | +12 targeted examples (10 onboarding_friction error-during-setup, 2 pricing_concern) | 87% | 0.89 | 0.85 | 0.82 | 0.89 | 0.90 | **Guide's numbers** from Chapter 06. |
 | 2 | | | | | | | | | |
 | 3 | | | | | | | | | |
 

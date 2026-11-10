@@ -25,7 +25,7 @@ You're in the right place. Open the chapter guide and follow it:
 |------|------------|
 | `src/server.ts` | Express server — loads the model once, serves `POST /classify` |
 | `src/classify.ts` | Client — sends text, gets a label back |
-| `src/compare.ts` | Side-by-side: fine-tuned model vs. TinyLlama |
+| `src/compare.ts` | Side-by-side on the fixed eval: fine-tuned model vs. a general model (qwen2.5:1.5b) |
 | `package.json` | Node dependencies |
 
 ---

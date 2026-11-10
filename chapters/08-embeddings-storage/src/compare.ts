@@ -1,59 +1,62 @@
 /**
- * compare.ts — Fine-tuned SLM vs. Ollama, side by side.
+ * compare.ts — Fine-tuned SLM vs. a general-purpose local LLM, side by side.
  *
- * This script runs the same 20 feedback examples through both models
- * and prints a comparison table showing:
- *   - What each model predicted
- *   - Whether they agreed
- *   - How long each took (inference only — model is already loaded)
- *   - Projected throughput at scale
+ * Both models label the same 100 tickets: the fixed eval from Chapter 05.
+ * Same ruler, same tickets, so the comparison is fair. The script prints:
+ *   - How many each model got right, label by label
+ *   - Tickets where they disagreed
+ *   - How long each took per ticket (inference only — both models already loaded)
+ *   - Projected time at higher volumes
+ *
+ * The general model gets the best setup a prompt can give it: the five label
+ * definitions from Chapter 02, and Ollama's structured output, which forces the
+ * answer to be exactly one of the five labels. That's the "LLM with an
+ * orchestration layer" option from the README, done properly.
  *
  * Both models run locally. No API keys. No external services.
  *
- * IMPORTANT: Start the classifier server before running this script.
- * The server loads the model once on startup. Latency measured here is
- * pure inference time — not model loading time.
- *
  * Run it with: npm run compare
  * (Classifier server must be running: npm run start)
- * (Ollama must be running with tinyllama: ollama pull tinyllama)
+ * (Ollama must be running with the model pulled: ollama pull qwen2.5:1.5b)
+ *
+ * Try a different general model: OLLAMA_MODEL=qwen2.5:0.5b npm run compare
  */
+
+import fs from "fs";
 
 const CLASSIFIER_URL = "http://localhost:3000/classify";
 const OLLAMA_URL = "http://localhost:11434/api/generate";
-const OLLAMA_MODEL = "tinyllama";
+const OLLAMA_MODEL = process.env.OLLAMA_MODEL ?? "qwen2.5:1.5b";
+
+const LABELS = ["bug_report", "feature_request", "pricing_concern", "onboarding_friction", "praise"];
+
+// The same five questions from Chapter 02, one line per label.
+const LABEL_DEFINITIONS = `bug_report: what's broken right now
+feature_request: what customers are asking us to build
+pricing_concern: whether pricing is causing frustration
+onboarding_friction: where new users are getting stuck
+praise: what's already working`;
 
 // ─────────────────────────────────────────────
-// The 20 test examples — one from each category pattern
-// These are NOT in the training data
+// Load the fixed eval
+// The root project keeps it in training/data/; chapter folders keep it in data/.
 // ─────────────────────────────────────────────
-const TEST_EXAMPLES = [
-  // Bug reports
-  { text: "The app freezes every time I switch between projects.", expected: "bug_report" },
-  { text: "My exports are failing silently — no error message, just nothing.", expected: "bug_report" },
-  { text: "Login stopped working after the update this morning.", expected: "bug_report" },
-  { text: "The graph is showing data from last week, not this week.", expected: "bug_report" },
-  // Feature requests
-  { text: "I'd love to be able to assign tasks to multiple people at once.", expected: "feature_request" },
-  { text: "Can you add a way to export directly to Google Sheets?", expected: "feature_request" },
-  { text: "A weekly summary email would save me a lot of time.", expected: "feature_request" },
-  { text: "Please add a dark mode — it's hard on my eyes.", expected: "feature_request" },
-  // Pricing concerns
-  { text: "Your cheapest plan is still too expensive for a solo operator.", expected: "pricing_concern" },
-  { text: "I don't understand why I'm being charged for inactive users.", expected: "pricing_concern" },
-  { text: "Competitors offer a free tier. You used to as well.", expected: "pricing_concern" },
-  { text: "I need the Pro features but can't justify the price jump from Basic.", expected: "pricing_concern" },
-  // Onboarding friction
-  { text: "I signed up but couldn't figure out how to connect my data source.", expected: "onboarding_friction" },
-  { text: "The getting started guide references a button that doesn't exist in the UI.", expected: "onboarding_friction" },
-  { text: "I spent 30 minutes setting up an integration that turned out to be on a higher plan.", expected: "onboarding_friction" },
-  { text: "The welcome email links to the wrong page.", expected: "onboarding_friction" },
-  // Praise
-  { text: "Best tool I've found for this workflow. My whole team is using it.", expected: "praise" },
-  { text: "Your support team replied in 10 minutes and actually solved the problem.", expected: "praise" },
-  { text: "The new dashboard is a massive improvement over the old one.", expected: "praise" },
-  { text: "I've recommended this to three people this week.", expected: "praise" },
-];
+const EVAL_PATH = fs.existsSync("training/train.py") ? "training/data/eval.csv" : "data/eval.csv";
+
+function loadEval(): Array<{ text: string; expected: string }> {
+  // Every row looks like: "the feedback text",label
+  // The label never contains a comma, so split on the last one.
+  return fs
+    .readFileSync(EVAL_PATH, "utf8")
+    .trim()
+    .split("\n")
+    .slice(1) // skip the header row
+    .map((line) => {
+      const cut = line.lastIndexOf(",");
+      const text = line.slice(0, cut).replace(/^"|"$/g, "").replace(/""/g, '"');
+      return { text, expected: line.slice(cut + 1).trim() };
+    });
+}
 
 // ─────────────────────────────────────────────
 // Call the fine-tuned classifier
@@ -75,25 +78,18 @@ async function callSLM(text: string): Promise<{ label: string; latencyMs: number
 }
 
 // ─────────────────────────────────────────────
-// Call Ollama with a structured prompt
-// We ask it to return exactly one of the five category labels.
-// Consistency is the main challenge here — Ollama may rephrase or use
-// different formatting on each call.
+// Call the general model through Ollama
+// `format` is Ollama's structured output: the reply must be JSON matching this
+// schema, so the model can only answer with one of the five labels. Without it,
+// small general models often reply with a sentence instead of a label.
 // ─────────────────────────────────────────────
 async function callOllama(text: string): Promise<{ label: string; latencyMs: number }> {
-  const VALID_LABELS = ["bug_report", "feature_request", "pricing_concern", "onboarding_friction", "praise"];
+  const prompt = `Classify this customer feedback into exactly one category.
 
-  const prompt = `Classify the following customer feedback into exactly one of these categories:
-bug_report, feature_request, pricing_concern, onboarding_friction, praise
+Categories:
+${LABEL_DEFINITIONS}
 
-Rules:
-- Reply with ONLY the category label, nothing else
-- Use underscores, not spaces
-- Do not explain your answer
-
-Feedback: "${text}"
-
-Category:`;
+Feedback: "${text}"`;
 
   const start = Date.now();
   const response = await fetch(OLLAMA_URL, {
@@ -103,86 +99,65 @@ Category:`;
       model: OLLAMA_MODEL,
       prompt,
       stream: false,
-      options: { temperature: 0 },  // temperature=0 makes Ollama more deterministic
+      format: {
+        type: "object",
+        properties: { label: { type: "string", enum: LABELS } },
+        required: ["label"],
+      },
+      options: { temperature: 0 }, // temperature=0: same input, same answer
     }),
   });
 
   if (!response.ok) {
-    throw new Error(`Ollama returned ${response.status}`);
+    throw new Error(`Ollama returned ${response.status}: ${await response.text()}`);
   }
 
   const result = await response.json() as { response: string };
-  const latencyMs = Date.now() - start;
-
-  // Extract the label from Ollama's response — it may include extra whitespace or punctuation
-  const raw = result.response.trim().toLowerCase().replace(/[^a-z_]/g, "");
-  const label = VALID_LABELS.find((l) => raw.includes(l)) ?? raw;
-
-  return { label, latencyMs };
+  const label = (JSON.parse(result.response) as { label: string }).label;
+  return { label, latencyMs: Date.now() - start };
 }
 
 // ─────────────────────────────────────────────
-// Print the results table
+// Print the results: label by label, then disagreements
 // ─────────────────────────────────────────────
-function printTable(
-  results: Array<{
-    text: string;
-    expected: string;
-    slmLabel: string;
-    slmMs: number;
-    ollamaLabel: string;
-    ollamaMs: number;
-  }>
-) {
-  const COL = {
-    text: 45,
-    expected: 22,
-    slm: 22,
-    ollama: 22,
-    match: 7,
-  };
+type Result = { text: string; expected: string; slmLabel: string; ollamaLabel: string };
 
-  const pad = (s: string, n: number) => s.slice(0, n).padEnd(n);
-  const header =
-    pad("Feedback", COL.text) +
-    pad("Expected", COL.expected) +
-    pad("SLM", COL.slm) +
-    pad("Ollama", COL.ollama) +
-    "Match?";
-
-  const divider = "─".repeat(header.length);
-
-  console.log("\n" + divider);
-  console.log(header);
-  console.log(divider);
-
-  let slmCorrect = 0;
-  let ollamaCorrect = 0;
-
-  for (const r of results) {
-    const slmRight = r.slmLabel === r.expected;
-    const ollamaRight = r.ollamaLabel === r.expected;
-    if (slmRight) slmCorrect++;
-    if (ollamaRight) ollamaCorrect++;
-
-    const matchMark = slmRight === ollamaRight ? "  tie" : slmRight ? "  SLM" : "  LLM";
-    const row =
-      pad(r.text, COL.text) +
-      pad(r.expected, COL.expected) +
-      pad(r.slmLabel + (slmRight ? "" : " ✗"), COL.slm) +
-      pad(r.ollamaLabel + (ollamaRight ? "" : " ✗"), COL.ollama) +
-      matchMark;
-    console.log(row);
-  }
-
-  console.log(divider);
-
+function printResults(results: Result[]) {
   const n = results.length;
-  console.log(`\nAccuracy — SLM: ${slmCorrect}/${n} (${Math.round((slmCorrect / n) * 100)}%)   Ollama: ${ollamaCorrect}/${n} (${Math.round((ollamaCorrect / n) * 100)}%)`);
+  const right = (rows: Result[], who: "slmLabel" | "ollamaLabel") =>
+    rows.filter((r) => r[who] === r.expected).length;
+
+  const divider = "─".repeat(52);
+  console.log(`\nFine-tuned SLM vs. ${OLLAMA_MODEL} on the fixed eval (${EVAL_PATH}, ${n} tickets)\n`);
+  console.log(`${"Label".padEnd(24)}${"SLM".padEnd(14)}${OLLAMA_MODEL}`);
+  console.log(divider);
+  for (const label of LABELS) {
+    const rows = results.filter((r) => r.expected === label);
+    console.log(
+      `${label.padEnd(24)}${`${right(rows, "slmLabel")}/${rows.length}`.padEnd(14)}${right(rows, "ollamaLabel")}/${rows.length}`
+    );
+  }
+  console.log(divider);
+  const slmTotal = right(results, "slmLabel");
+  const ollamaTotal = right(results, "ollamaLabel");
+  console.log(
+    `${"Overall".padEnd(24)}${`${slmTotal}/${n} (${Math.round((slmTotal / n) * 100)}%)`.padEnd(14)}${ollamaTotal}/${n} (${Math.round((ollamaTotal / n) * 100)}%)`
+  );
+
+  const disagreements = results.filter((r) => r.slmLabel !== r.ollamaLabel);
+  const SHOW = 6;
+  console.log(`\nWhere they disagreed (${disagreements.length} tickets, first ${Math.min(SHOW, disagreements.length)} shown):`);
+  for (const r of disagreements.slice(0, SHOW)) {
+    const mark = (label: string) => (label === r.expected ? "✓" : "✗");
+    console.log(`\n  ${r.text.slice(0, 90)}`);
+    console.log(`  Expected: ${r.expected}`);
+    console.log(`  SLM:      ${r.slmLabel} ${mark(r.slmLabel)}`);
+    console.log(`  LLM:      ${r.ollamaLabel} ${mark(r.ollamaLabel)}`);
+  }
 }
 
 // ─────────────────────────────────────────────
-// Print the speed and cost section
+// Print the speed section
 // ─────────────────────────────────────────────
 function printSpeedSummary(slmTimes: number[], ollamaTimes: number[]) {
   const avg = (arr: number[]) => Math.round(arr.reduce((a, b) => a + b, 0) / arr.length);
@@ -190,13 +165,13 @@ function printSpeedSummary(slmTimes: number[], ollamaTimes: number[]) {
   const ollamaAvg = avg(ollamaTimes);
 
   console.log("\n── Speed ──────────────────────────────────────────────");
-  console.log(`SLM average latency:    ${slmAvg}ms per prediction`);
-  console.log(`Ollama average latency: ${ollamaAvg}ms per prediction`);
+  console.log(`SLM average latency:    ${slmAvg}ms per ticket`);
+  console.log(`${OLLAMA_MODEL} average latency: ${ollamaAvg}ms per ticket`);
 
   const VOLUMES = [1_000, 10_000, 100_000];
 
-  console.log("\n── Projected time to classify N items (sequential) ────");
-  console.log(`${"Volume".padEnd(12)} ${"SLM".padEnd(16)} Ollama`);
+  console.log("\n── Projected time to classify N tickets (one at a time) ──");
+  console.log(`${"Volume".padEnd(12)} ${"SLM".padEnd(16)} ${OLLAMA_MODEL}`);
   console.log("─".repeat(46));
 
   for (const vol of VOLUMES) {
@@ -212,11 +187,6 @@ function printSpeedSummary(slmTimes: number[], ollamaTimes: number[]) {
     console.log(`${String(vol.toLocaleString()).padEnd(12)} ${fmt(slmSec).padEnd(16)} ${fmt(ollamaSec)}`);
   }
 
-  console.log("\n── What this means ────────────────────────────────────");
-  console.log("The fine-tuned SLM is faster because it does one specific thing.");
-  console.log("Ollama generates tokens one at a time — more flexible, more expensive per call.");
-  console.log("At 10k+ items/day, the latency difference becomes meaningful.");
-  console.log("At small volumes, either approach works.");
   console.log("\nBoth run locally. Neither sends data anywhere. Neither costs money per call.");
 }
 
@@ -224,63 +194,62 @@ function printSpeedSummary(slmTimes: number[], ollamaTimes: number[]) {
 // Main
 // ─────────────────────────────────────────────
 async function main() {
-  console.log("Running 20 examples through both models...");
-  console.log("This will take a few minutes — Ollama generates responses one at a time.\n");
+  const examples = loadEval();
+  console.log(`Running ${examples.length} tickets from ${EVAL_PATH} through both models...`);
+  console.log("This takes a minute or two.\n");
 
-  const results = [];
+  const results: Result[] = [];
   const slmTimes: number[] = [];
   const ollamaTimes: number[] = [];
 
-  for (let i = 0; i < TEST_EXAMPLES.length; i++) {
-    const { text, expected } = TEST_EXAMPLES[i];
-    process.stdout.write(`[${i + 1}/${TEST_EXAMPLES.length}] ${text.slice(0, 40)}...\r`);
+  for (let i = 0; i < examples.length; i++) {
+    const { text, expected } = examples[i];
+    process.stdout.write(`[${i + 1}/${examples.length}]\r`);
 
     let slmLabel = "error";
-    let slmMs = 0;
     let ollamaLabel = "error";
-    let ollamaMs = 0;
 
     try {
       const slm = await callSLM(text);
       slmLabel = slm.label;
-      slmMs = slm.latencyMs;
-      slmTimes.push(slmMs);
+      slmTimes.push(slm.latencyMs);
     } catch (err) {
-      if (err instanceof Error && err.message.includes("ECONNREFUSED")) {
+      if (err instanceof Error && (err.message.includes("ECONNREFUSED") || err.message.includes("fetch failed"))) {
         console.error("\nCannot connect to the classifier server.");
         console.error("Start it first with: npm run start");
         process.exit(1);
       }
-      slmLabel = "error";
     }
 
     try {
       const ollama = await callOllama(text);
       ollamaLabel = ollama.label;
-      ollamaMs = ollama.latencyMs;
-      ollamaTimes.push(ollamaMs);
+      ollamaTimes.push(ollama.latencyMs);
     } catch (err) {
-      if (err instanceof Error && err.message.includes("ECONNREFUSED")) {
-        console.error("\nCannot connect to Ollama.");
-        console.error("Make sure Ollama is running: ollama serve");
-        console.error("And tinyllama is installed: ollama pull tinyllama");
+      const message = err instanceof Error ? err.message : String(err);
+      if (message.includes("not found")) {
+        console.error(`\nOllama doesn't have ${OLLAMA_MODEL} yet. Download it with:`);
+        console.error(`  ollama pull ${OLLAMA_MODEL}`);
         process.exit(1);
       }
-      ollamaLabel = "error";
+      if (message.includes("ECONNREFUSED") || message.includes("fetch failed")) {
+        console.error("\nCannot connect to Ollama. Open the Ollama app (or run: ollama serve).");
+        process.exit(1);
+      }
     }
 
-    results.push({ text, expected, slmLabel, slmMs, ollamaLabel, ollamaMs });
+    results.push({ text, expected, slmLabel, ollamaLabel });
   }
 
   process.stdout.write("\n");
-  printTable(results);
+  printResults(results);
   if (slmTimes.length > 0 && ollamaTimes.length > 0) {
     printSpeedSummary(slmTimes, ollamaTimes);
   }
 
   console.log("\n── Takeaway ───────────────────────────────────────────");
   console.log("Use a fine-tuned SLM when: fixed categories, labeled data, speed matters.");
-  console.log("Use Ollama when: open-ended tasks, no labeled data, one-off questions.");
+  console.log("Use a general LLM when: open-ended tasks, no labeled data, one-off questions.");
 }
 
 main();

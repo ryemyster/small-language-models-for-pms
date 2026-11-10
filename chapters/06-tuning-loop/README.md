@@ -23,7 +23,7 @@ You're in the right place. Open the chapter guide and follow it:
 | File | What it is |
 |------|------------|
 | `data/feedback.csv` | 175 labeled examples — 12 targeted additions at the bottom |
-| `experiment-log.md` | Log template — fill in your Chapter 05 baseline before retraining |
+| `experiment-log.md` | Log with the guide's Chapter 05 baseline already in Run 0 — replace it with yours if you ran Chapter 05 |
 
 ---
 

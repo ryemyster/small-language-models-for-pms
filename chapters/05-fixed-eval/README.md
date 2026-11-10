@@ -23,9 +23,10 @@ You're in the right place. Open the chapter guide and follow it:
 | File | What it is |
 |------|------------|
 | `data/eval.csv` | Fixed trustworthy eval — 100 examples, 20 per label, zero overlap with training |
+| `experiment-log.md` | Blank log — record your baseline scores here |
 
 ---
 
 ## Record your baseline scores
 
-After you run the fixed eval, write down the F1 score for each label. You'll need those numbers in Chapter 06 to prove your tuning actually helped.
+After you run the fixed eval, write the F1 score for each label into `experiment-log.md`. You'll copy that row into Chapter 06 to prove your tuning actually helped.

@@ -41,7 +41,7 @@ Each chapter picks up where the last one left off. Don't skip ahead — the stor
 |---------|----------------|------|
 | [01 — Why an SLM?](docs/when-slms-make-sense.md) | Understand why a small trained model beats a general LLM for this job | 10 min read |
 | [02 — Labels and training data](docs/02-labels-and-training-data.md) | Turn your five questions into labeled examples the model can study | 20 min |
-| [03 — Train a baseline](docs/03-train-baseline.md) | Run your first training pass and read the output | 30 min (15–20 min waiting) |
+| [03 — Train a baseline](docs/03-train-baseline.md) | Run your first training pass and read the output | 20 min |
 | [04 — Why accuracy lies](docs/04-why-accuracy-lies.md) | See how a good-looking score can still mean a bad model | 15 min |
 | [05 — Build a fixed eval suite](docs/05-fixed-eval.md) | Create the honest, repeatable test that anchors everything else | 20 min |
 | [06 — Tune deliberately](docs/06-tuning-loop.md) | Improve the weak categories, one change at a time | 30 min |
@@ -126,7 +126,7 @@ This tutorial builds the third option and compares it directly against a local L
 ## Quick commands (after setup)
 
 ```bash
-python3 training/train.py   # train the model — takes ~20 min on a laptop CPU
+python3 training/train.py   # train the model — about a minute on a recent laptop
 npm run start               # serve the model at localhost:3000
 npm run classify            # send feedback, get a label back
 npm run compare             # fine-tuned model vs. Ollama, side by side
