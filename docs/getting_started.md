@@ -2,6 +2,9 @@
 
 You do not need to be a developer to follow this tutorial. This guide will walk you through everything — what to install, how to run the code, and what to look for to know it's working.
 
+> [!TIP]
+> **Rather have a coding agent do this for you?** Open the folder in Claude Code, Cursor, GitHub Copilot, or Codex and type **hi**. It checks your computer, installs what's missing (after asking), and walks you through the chapters. See [START_HERE.md](../START_HERE.md).
+
 Set aside about 30 minutes for the initial setup. Training the model itself is quick: about a minute on a recent laptop, longer on an older one.
 
 ---

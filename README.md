@@ -23,17 +23,33 @@ By the end, you type one command and every ticket comes back labeled.
 
 ---
 
-## Start here
+## Two ways to start
 
-**What you need:** a Mac with Apple Silicon (M1 or newer), Windows, or Linux, plus [Python 3.11+](https://www.python.org/downloads/), [Node.js 20+](https://nodejs.org), and [Ollama](https://ollama.com). No API key, no account, no GPU. Older Intel Macs won't work: the training library no longer supports them.
+**What you need:** a Mac with Apple Silicon (M1 or newer), Windows, or Linux, plus [Python 3.11+](https://www.python.org/downloads/), [Node.js 20+](https://nodejs.org), and [Ollama](https://ollama.com), and about 4GB of free disk space. No API key, no account, no GPU. Older Intel Macs won't work: the training library no longer supports them.
 
-**Step 1 — Set up your environment**
+**New to code? Use a coding agent as your tutor.** Download this repository, open the folder in any coding agent (an AI assistant that can read files and run commands, such as Claude Code, Cursor, GitHub Copilot, or Codex), and type **hi**. The folder includes instructions most agents load automatically (`AGENTS.md`, and `CLAUDE.md` for Claude Code), so the agent greets you, checks your computer, and leads you through the tutorial. If yours doesn't, paste this prompt:
 
-→ [Getting Started](docs/getting_started.md) — install Python, Node, and Ollama, then run the setup script. Takes about 30 minutes the first time, mostly downloads.
+```text
+I want to learn how small AI models work by building one. I don't know how to code.
+This folder is a hands-on tutorial called "Small Language Models for PMs".
 
-**Step 2 — Follow the chapters in order**
+Please be my tutor:
+1. Read TUTOR.md in this folder and follow it. It explains how to guide me.
+2. Check that my computer is ready, and help me fix anything that's missing.
+3. Then walk me through the tutorial one step at a time, in plain language.
 
-Each chapter picks up where the last one left off. Don't skip ahead — the story builds on itself.
+I want to make the decisions myself. You do the typing and run the commands.
+Explain what happened, then wait for me before moving on.
+```
+
+The agent sets things up, runs the commands, and asks for your judgment at each step. Full instructions, including how to download and what to expect: **[START_HERE.md](START_HERE.md)**.
+
+**Comfortable with a terminal?**
+
+1. [Getting Started](docs/getting_started.md) — install Python, Node, and Ollama, then run the setup script. About 30 minutes the first time, mostly downloads.
+2. Follow the chapters below in order. Each one picks up where the last one left off.
+
+Just want to see the finished project run first? Jump to [Quick start](#quick-start-if-you-just-want-to-see-it-run).
 
 ---
 
@@ -152,9 +168,12 @@ Your scores will land within a few points of the ones quoted in the chapters, no
 ## What's in this repo
 
 ```
+START_HERE.md        ← no-code start: download, open in a coding agent, say hi
+TUTOR.md             ← instructions your coding agent follows to teach the tutorial
+AGENTS.md, CLAUDE.md ← loaded automatically by coding agents; they point the agent to TUTOR.md
 docs/                ← chapter guides — read these in order
 chapters/            ← one working folder per chapter, each with everything it needs
-setup.py             ← one-time setup: checks your tools, installs packages into .venv
+setup.py             ← one-time setup; `python3 setup.py --check` reports what's ready and your progress
 requirements.txt     ← Python packages (installed by setup.py)
 training/            ← the finished project's Python side
   data/              ← feedback.csv (175 labeled examples), eval.csv (fixed eval), bad_eval.csv
