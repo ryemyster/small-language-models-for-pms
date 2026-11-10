@@ -19,10 +19,10 @@ You're in the right place. Open the chapter guide and follow it:
 | File | What it is |
 |------|------------|
 | `train.py` | The fine-tuning script |
-| `requirements.txt` | Python packages the script needs |
+| `requirements.txt` | Python packages the script needs — already installed if you ran setup |
 
 ---
 
 ## One thing to know about `model/`
 
-The doc will have you run `python3 train.py`. That generates a `model/` folder here with the trained model inside. That folder is gitignored — it's too large to store in git and you can always regenerate it by running `train.py` again. Chapters 04+ need a trained model, so if you skip ahead, run `train.py` in that chapter's folder first.
+The doc will have you run `python3 train.py`. That generates a `model/` folder here with the trained model inside (about 250MB). That folder is gitignored — it's too large to store in git and you can always regenerate it by running `train.py` again. Chapters 04 onward copy this model forward instead of retraining; each chapter's doc tells you what to copy, or when to train.

@@ -16,7 +16,7 @@ Contributions are welcome. This is an open tutorial, not a framework — the goa
 - New features that expand scope beyond the core use case
 - Framework references or jargon
 - Hype language of any kind
-- Additional model comparisons (the point is DistilBERT vs. Ollama — not a benchmark suite)
+- Additional model comparisons (the point is one fine-tuned model vs. one small general model — not a benchmark suite)
 
 ---
 
@@ -28,6 +28,8 @@ Contributions are welcome. This is an open tutorial, not a framework — the goa
 4. Open a pull request with a clear description of what you changed and why
 
 No formal process. No CLA. Just keep the tone: plain language, honest about tradeoffs, no hype.
+
+**If your change affects what a command prints**, rerun the affected chapters and update the output quoted in the docs. Every score in the guide is real output from a real run, never a made-up example. Your numbers will differ a little from what's there now (different computer), which is fine: replace the numbers in the chapters you touched, and check that the story around them still holds.
 
 ---
 

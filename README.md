@@ -25,9 +25,11 @@ By the end, you type one command and every ticket comes back labeled.
 
 ## Start here
 
+**What you need:** a Mac with Apple Silicon (M1 or newer), Windows, or Linux, plus [Python 3.11+](https://www.python.org/downloads/), [Node.js 20+](https://nodejs.org), and [Ollama](https://ollama.com). No API key, no account, no GPU. Older Intel Macs won't work: the training library no longer supports them.
+
 **Step 1 — Set up your environment**
 
-→ [Getting Started](docs/getting_started.md) — install Python, Node, and Ollama, then run the setup script. Takes about 30 minutes the first time.
+→ [Getting Started](docs/getting_started.md) — install Python, Node, and Ollama, then run the setup script. Takes about 30 minutes the first time, mostly downloads.
 
 **Step 2 — Follow the chapters in order**
 
@@ -45,7 +47,7 @@ Each chapter picks up where the last one left off. Don't skip ahead — the stor
 | [04 — Why accuracy lies](docs/04-why-accuracy-lies.md) | See how a good-looking score can still mean a bad model | 15 min |
 | [05 — Build a fixed eval suite](docs/05-fixed-eval.md) | Create the honest, repeatable test that anchors everything else | 20 min |
 | [06 — Tune deliberately](docs/06-tuning-loop.md) | Improve the weak categories, one change at a time | 30 min |
-| [07 — Serve the model](docs/07-serve-the-model.md) | Load the model into a TypeScript endpoint and call it like any API | 20 min |
+| [07 — Serve the model](docs/07-serve-the-model.md) | Load the model into a TypeScript endpoint, call it like any API, and race it against a general-purpose model | 25 min |
 | [08 — Embeddings and storage](docs/08-embeddings-storage.md) | Store results and search by meaning — optional, but powerful | 30 min |
 | [09 — Make it yours](docs/09-make-it-yours.md) | Adapt the full pipeline for your own use case | 20 min |
 
@@ -83,7 +85,7 @@ Same idea, but engineered. A fixed system prompt defines your categories. Versio
 
 **Breaks down at scale — specifically:**
 
-- **Cost compounds.** At ~200 tokens per ticket and current API pricing, you're paying roughly $0.0001–$0.0005 per ticket. Negligible at 500/week. A real budget line at 50,000/week.
+- **Cost compounds.** At ~200 tokens per ticket and typical prices for small API models, you're paying roughly $0.0001–$0.0005 per ticket (prices change, so check your provider's current rates). Negligible at 500/week. A real budget line at 50,000/week.
 - **Latency is a ceiling.** An API round-trip takes 1–5 seconds per call. A local model takes milliseconds. No rate limits.
 - **Your data leaves your system.** Every classification call sends customer ticket text to a third-party API. For companies with data residency requirements or sensitive support data, that's a problem.
 - **"An agent that learns" doesn't solve the core tradeoffs.** A memory-augmented agent can get closer to fine-tuned consistency — but it still pays per call, still hits the latency ceiling, still sends data out. It's more engineering for a result a fine-tuned model delivers more simply.
@@ -117,38 +119,59 @@ A small model (~250MB) you train on your own labeled examples. After training, i
 - Regularly, moderate volume, some data concerns → LLM with orchestration
 - Regularly, high volume, or data must stay local → fine-tuned SLM
 
-This tutorial builds the third option and compares it directly against a local LLM so you can see the tradeoffs in practice, not just on paper.
+This tutorial builds the third option and compares it directly against a local general-purpose model so you can see the tradeoffs in practice, not just on paper. When we ran that comparison on the tutorial's 100-ticket test set, the general model, given a well-built prompt, scored 82% to the fine-tuned model's 87%. Close overall. But on `onboarding_friction`, the label where your team's definition matters most, it got 10 of 20 right to the fine-tuned model's 16, and it took about 8 times longer per ticket.
 
 → [When SLMs make sense](docs/when-slms-make-sense.md) — the full one-page decision rule, with worked examples
 
 ---
 
-## Quick commands (after setup)
+## Quick start (if you just want to see it run)
+
+The chapters walk you through all of this one step at a time. If you'd rather run the finished project first, do this from the project root after installing Python, Node, and Ollama:
 
 ```bash
-python3 training/train.py   # train the model — about a minute on a recent laptop
-npm run start               # serve the model at localhost:3000
-npm run classify            # send feedback, get a label back
-npm run compare             # fine-tuned model vs. Ollama, side by side
+python3 setup.py                     # one time: checks your tools, installs packages into .venv
+source .venv/bin/activate            # turn on the environment (Windows: .venv\Scripts\activate)
+python3 training/train.py            # train the model — about a minute on a recent laptop
+python3 training/score_eval.py --eval training/data/eval.csv   # score it on the 100-ticket fixed eval
+npm run start                        # serve it at localhost:3000 — leave this running
 ```
+
+Then, in a second terminal (from the project root):
+
+```bash
+npm run classify                     # send five sample tickets, get labels back
+ollama pull qwen2.5:1.5b             # one time: the general model to compare against (~1GB)
+npm run compare                      # fine-tuned model vs. general model on the fixed eval
+```
+
+Your scores will land within a few points of the ones quoted in the chapters, not exactly on them. [Here's why.](docs/getting_started.md#your-numbers-wont-match-ours-exactly--and-thats-expected)
 
 ---
 
 ## What's in this repo
 
 ```
-docs/             ← chapter guides — read these in order
-chapters/         ← starter code for each chapter (self-contained)
-training/
-  data/           ← labeled training and eval CSVs
-  train.py        ← the training script (the only Python you need to run)
-  score_eval.py   ← score any labeled CSV against your model
-  model/          ← saved model artifact (generated, gitignored)
-src/
-  server.ts       ← Express server serving the model as an API
-  classify.ts     ← TypeScript client: send text, get a label
-  compare.ts      ← side-by-side: fine-tuned model vs. Ollama
+docs/                ← chapter guides — read these in order
+chapters/            ← one working folder per chapter, each with everything it needs
+setup.py             ← one-time setup: checks your tools, installs packages into .venv
+requirements.txt     ← Python packages (installed by setup.py)
+training/            ← the finished project's Python side
+  data/              ← feedback.csv (175 labeled examples), eval.csv (fixed eval), bad_eval.csv
+  train.py           ← fine-tunes the model
+  score_eval.py      ← scores any labeled CSV against your model
+  experiment-log.md  ← one row per training run
+  model/             ← the trained model (generated by train.py, gitignored)
+src/                 ← the finished project's TypeScript side
+  server.ts          ← serves the model as an API at localhost:3000
+  classify.ts        ← sends text, gets a label back
+  compare.ts         ← fine-tuned model vs. a general model on the fixed eval
+  store.ts           ← Chapter 08: classify, embed, and save to Supabase
+  search.ts          ← Chapter 08: search saved feedback by meaning
+supabase/            ← Chapter 08: database table definition
 ```
+
+The root folder is the finished reference. You do the work inside `chapters/`.
 
 ---
 

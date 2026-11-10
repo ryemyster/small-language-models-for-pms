@@ -27,4 +27,4 @@ You're in the right place. Open the chapter guide and follow it:
 
 ## You need a trained model
 
-The doc will check for `model/` before you run anything. If it's missing, the doc tells you exactly how to generate it.
+The doc will check for `model/` before you run anything. If it's missing, you'll copy the one you trained in Chapter 03. No need to train again.

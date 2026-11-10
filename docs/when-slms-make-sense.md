@@ -24,11 +24,14 @@ The tradeoff is simple:
 
 | | Fine-tuned SLM | General LLM (Ollama) |
 |---|---|---|
-| **Speed** | ~50ms per prediction | ~2–10 seconds per prediction |
-| **Consistency** | Same answer every time | Can vary between runs |
+| **Accuracy on this tutorial's fixed eval** | 87% | 82% for qwen2.5:1.5b, given the label definitions |
+| **Speed** | ~30ms per prediction | ~230ms for qwen2.5:1.5b; bigger general models are slower |
+| **Consistency** | Same answer every time | Same answer only if you fix its settings; changes when the model is updated |
 | **Requires labeled data** | Yes — you need examples | No |
 | **Flexibility** | One task only | Any task |
 | **Runs offline** | Yes | Yes |
+
+Accuracy and speed are from the Chapter 07 comparison, run on a recent Mac. Yours will differ a little.
 
 Neither is better. They're tools for different jobs.
 
@@ -38,7 +41,7 @@ Neither is better. They're tools for different jobs.
 
 **Fine-tune a small model when:**
 1. The task is structured and repetitive — the same kind of input, the same set of possible outputs
-2. You have labeled examples — at least 50, ideally 200+
+2. You have labeled examples — a few dozen per category at minimum (this tutorial uses about 35 per category)
 3. Consistency matters — you want the same answer for the same input, every time
 
 **Use a general-purpose LLM (Ollama) when:**
@@ -54,7 +57,7 @@ Neither is better. They're tools for different jobs.
 
 You have 500 support tickets. You want each one tagged: bug report, feature request, pricing concern, onboarding friction, or praise. The categories are fixed. The examples are repetitive. You have historical tickets you've already categorized.
 
-A fine-tuned model will tag them in under a minute, with consistent results. Ollama will take 30+ minutes, and the labels will vary based on how the model is feeling that day.
+A fine-tuned model will tag them in about 15 seconds, the same way every time. The small general model from Chapter 07 takes about 2 minutes, and it misses more of the tickets where your team's definitions matter — like a broken setup step that's really onboarding friction, not a bug.
 
 ### 2. Interview transcript extraction
 
@@ -82,7 +85,7 @@ A fine-tuned model learns your definition of "complete". Once trained, it checks
 
 ### 3. Tasks where you don't have labeled data
 
-If you can't point to 50+ examples where you already know the right answer, you can't fine-tune yet. The model has nothing to learn from. Use Ollama until you have the data.
+If you can't point to a few dozen examples per category where you already know the right answer, you can't fine-tune yet. The model has nothing to learn from. Use Ollama until you have the data.
 
 ---
 
@@ -103,14 +106,14 @@ The text gets broken into tokens (roughly: words and punctuation). The model run
 **Output:**
 
 ```json
-{ "label": "onboarding_friction", "confidence": 0.94 }
+{ "label": "onboarding_friction", "confidence": 0.68 }
 ```
 
 **Why it's consistent:**
 
-The model was trained on 200 examples of labeled feedback. It saw dozens of onboarding complaints and learned what language patterns predict that label. Every time it sees similar language, it makes the same call — not because it's "thinking", but because the numbers always produce the same output for similar input.
+The model was trained on 175 examples of labeled feedback. It saw dozens of onboarding complaints and learned what language patterns predict that label. Every time it sees similar language, it makes the same call — not because it's "thinking", but because the numbers always produce the same output for similar input.
 
-Run the same text through Ollama and it will probably say "onboarding issue" or "UX friction" or "usability problem" — all reasonable, all inconsistent with each other, none of them your controlled label set.
+Ask a general model the same question without constraints and it may answer "onboarding issue" or "UX friction" or "usability problem" — all reasonable, all inconsistent with each other, none of them your controlled label set. You can force it to pick from your labels (Chapter 07 does exactly that), but it still only knows your one-line definitions, not the examples that taught your model where the boundaries are.
 
 ---
 
@@ -118,7 +121,7 @@ Run the same text through Ollama and it will probably say "onboarding issue" or 
 
 **When your categories aren't stable yet.** If you're still debating whether "pricing concern" and "budget constraint" are the same label, don't train yet. The model learns your labels. If the labels change, you retrain.
 
-**When you have fewer than 50 examples per category.** The model will memorize the examples instead of learning the pattern. You'll get good accuracy on training data and bad accuracy on new inputs.
+**When you have fewer than about 30 examples per category.** The model will memorize the examples instead of learning the pattern. You'll get good accuracy on training data and bad accuracy on new inputs.
 
 **When you need to explain the decision.** A model gives you a label and a confidence score. It cannot tell you *why* it made that call in terms a human can audit. If your process requires a human-readable rationale, use Ollama and ask it to explain.
 

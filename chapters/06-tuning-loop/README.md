@@ -13,7 +13,6 @@ You're in the right place. Open the chapter guide and follow it:
 | File | What it is |
 |------|------------|
 | `data/eval.csv` | Fixed eval — unchanged, your ruler for every comparison |
-| `data/bad_eval.csv` | Flawed eval reference |
 | `train.py` | Training script |
 | `score_eval.py` | Eval scorer |
 | `requirements.txt` | Python dependencies |

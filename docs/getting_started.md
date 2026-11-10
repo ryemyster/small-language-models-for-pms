@@ -84,7 +84,7 @@ python3 setup.py
 python setup.py
 ```
 
-The script checks your versions, creates a virtual environment, installs all Python and Node packages, and tells you exactly what's wrong if something fails. If it ends with "Setup complete" you're ready to train.
+The script checks your versions, creates a virtual environment (a folder called `.venv` holding this project's Python packages), installs all Python and Node packages, and tells you exactly what's wrong if something fails. If it ends with "Setup complete", skip ahead to [You're ready](#youre-ready).
 
 If you prefer to do it manually, continue with the steps below.
 
@@ -199,8 +199,11 @@ ls
 You should see something like:
 
 ```
-README.md   docs/   package.json   requirements.txt   src/   training/
+CODE_OF_CONDUCT.md   CONTRIBUTING.md   LICENSE   README.md   chapters   docs
+package-lock.json    package.json      requirements.txt   setup.py   src   supabase   training
 ```
+
+The exact layout depends on your terminal's width. What matters is that you see `chapters`, `docs`, and `setup.py`.
 
 ---
 
@@ -280,18 +283,30 @@ success
 
 ## You're ready
 
-Run these commands to confirm everything is in place:
+First, turn on the project's environment, if it isn't already. You'll do this every time you open a new terminal window:
+
+```bash
+source .venv/bin/activate        # Mac/Linux
+```
+
+```
+.venv\Scripts\activate           # Windows
+```
+
+You should see `(.venv)` at the start of your prompt. Then run these to confirm everything is in place:
 
 ```bash
 python3 --version        # should show Python 3.11 or higher
 node --version           # should show v20 or higher
-ollama list              # should respond without error
+ollama list              # should respond without error (lists qwen2.5:1.5b once you've pulled it)
 python3 -c "import transformers, datasets, sklearn, pandas, accelerate, torch; print('Python deps OK')"
 ```
 
 If the last command prints `Python deps OK`, all training dependencies are installed.
 
-Once everything passes, go back to the [README](../README.md) and follow the run steps from the top.
+Used the setup script? It doesn't download the comparison model. Run `ollama pull qwen2.5:1.5b` now ([Step 7](#step-7-pull-the-ollama-comparison-model)) or when you reach Chapter 07.
+
+**You're set.** Start with [Chapter 01 — When SLMs make sense](when-slms-make-sense.md), then [Chapter 02](02-labels-and-training-data.md). Each chapter tells you which folder to work in.
 
 ---
 
@@ -302,6 +317,10 @@ Common issues:
 **"command not found" for python3** — Python isn't installed or isn't on your PATH. Reinstall from python.org, and on Windows make sure "Add Python to PATH" is checked.
 
 **"permission denied" on pip install** — Make sure your virtual environment is active. You should see `(.venv)` at the start of your terminal prompt before running `pip install`. If it's not there, run `source .venv/bin/activate` (Mac/Linux) or `.venv\Scripts\activate` (Windows). Never use `sudo pip install` — it installs packages globally and can break other things on your machine.
+
+**pip says it can't find a version of `torch` (or another package)** — Your Python version is probably outside what the packages support. Run `python3 --version`: it needs to be 3.11 or newer. If it's very new (newer than 3.15), install Python 3.15 from python.org, delete the `.venv` folder, and run setup again.
+
+**`ModuleNotFoundError: No module named 'torch'`** (or `transformers`) when you run a script — The project's environment isn't turned on in this terminal window. Run `source .venv/bin/activate` (Windows: `.venv\Scripts\activate`) from the project root, or `source ../../.venv/bin/activate` from inside a chapter folder.
 
 **pip install fails with a long error** — Copy the last line of the error and search it. These are usually specific package conflicts. The most common fix is `pip install --upgrade pip` then try again.
 
