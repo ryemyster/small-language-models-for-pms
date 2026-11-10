@@ -7,7 +7,6 @@ __pycache__/
 .venv/
 venv/
 .claude/
-CLAUDE.md
 
 # Model artifacts — too large to commit, regenerate by running train.py
 # (training/model/ at the root, model/ in each chapter folder)
@@ -18,4 +17,6 @@ model/
 
 # Editor
 .vscode/
-AGENTS.md
+
+# Your notes from the agent-guided path (yours, not the repo's)
+my-notes.md

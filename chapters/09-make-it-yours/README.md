@@ -34,6 +34,6 @@ To adapt this for your own problem, change only these four:
 1. `data/feedback.csv` — your labeled examples, same two-column format
 2. `data/eval.csv` — your fixed eval, no overlap with training
 3. *(optional)* `data/bad_eval.csv` — delete it or keep it
-4. `src/compare.ts` — update `TEST_EXAMPLES` with your domain's text
+4. `src/compare.ts` — replace `LABELS` and `LABEL_DEFINITIONS` with your labels and definitions
 
 Everything else — the server, the training script, the scorer — works with your data as-is.

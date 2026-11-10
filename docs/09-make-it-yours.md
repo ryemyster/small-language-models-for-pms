@@ -97,9 +97,9 @@ Everything else stays the same. You don't touch the server, the training script 
 | `data/feedback.csv` | Replace with your labeled examples — same two-column format |
 | `data/eval.csv` | Replace with your fixed eval — 15–20 examples per label, no overlap with training |
 | `data/bad_eval.csv` | Optional — delete it or keep it as a reminder of what bad evals look like |
-| `src/compare.ts` | Update `TEST_EXAMPLES` with examples from your domain |
+| `src/compare.ts` | Replace `LABELS` and `LABEL_DEFINITIONS` near the top with your labels and your one-sentence definitions from Step 1 |
 
-The training script (`train.py`) auto-detects your labels from the CSV — you don't hardcode them anywhere. Whatever labels appear in your `feedback.csv`, the model learns to predict.
+The training script (`train.py`) auto-detects your labels from the CSV — you don't hardcode them anywhere. Whatever labels appear in your `feedback.csv`, the model learns to predict. The only place labels are written out by hand is `compare.ts`, because the general model it compares against has to be told what the labels mean.
 
 ---
 
@@ -228,7 +228,7 @@ python3 score_eval.py --eval data/spot-check-YYYY-MM.csv
 | Signal | What it means |
 |--------|--------------|
 | Any label's F1 drops >0.10 from baseline | Model has a new blind spot — add fresh examples and retrain |
-| Average confidence drops below 0.70 | Data distribution has drifted — collect new training examples |
+| Confidence drops — the confidence check at the end of `score_eval.py` auto-labels far fewer tickets at your chosen threshold than it did on your fixed eval | The kind of feedback coming in has shifted — collect new training examples |
 | A label that was rare is now common | Customer behavior changed — add more examples of that label |
 | You read a batch and labels look wrong | Trust your judgment — something shifted, check the confusion matrix |
 
