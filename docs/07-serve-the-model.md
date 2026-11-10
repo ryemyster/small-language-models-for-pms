@@ -278,14 +278,18 @@ If the model is still loading, `status` will be `"loading"`. If the server crash
 
 ---
 
-## Step 8 — Compare your model against Ollama
+## Step 8 — Compare your model against a general-purpose model
+
+Your model was trained to do one job. How does it stack up against a general-purpose language model that's never seen your labels?
+
+The comparison runs both models on the same 100 tickets: your fixed eval from Chapter 05. The general model gets the best setup a prompt can give it: the five label definitions from Chapter 02, plus an instruction that forces its answer to be exactly one of the five labels. That's the "LLM with an orchestration layer" option from the README.
 
 **Make sure Ollama is running.** On Mac, look for the llama icon in your menu bar. If it's not there, open the Ollama app.
 
-Then pull the comparison model (if you haven't already):
+Then pull the comparison model (if you haven't already). It's about 1GB:
 
 ```bash
-ollama pull tinyllama
+ollama pull qwen2.5:1.5b
 ```
 
 Now run the comparison — **in your second terminal, with the server still running in the first:**
@@ -294,44 +298,46 @@ Now run the comparison — **in your second terminal, with the server still runn
 npm run compare
 ```
 
-This takes a minute or two. Ollama generates responses one token at a time.
+This takes a minute or two.
 
-**✓ You should see a table like:**
+**✓ You should see something like this** (our numbers; yours will differ a little):
 
 ```
-Feedback                                     Expected              SLM                   Ollama                Match?
-─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-The app freezes every time I switch between pbug_report            bug_report            responsethankyouforsha  SLM
-...
-The graph is showing data from last week, notbug_report            bug_report            bug_report              tie
-...
-The getting started guide references a buttononboarding_friction   bug_report ✗          responsethankyouforbri  tie
-...
+Fine-tuned SLM vs. qwen2.5:1.5b on the fixed eval (data/eval.csv, 100 tickets)
 
-Accuracy — SLM: 18/20 (90%)   Ollama: 1/20 (5%)
+Label                   SLM           qwen2.5:1.5b
+────────────────────────────────────────────────────
+bug_report              20/20         18/20
+feature_request         17/20         19/20
+pricing_concern         18/20         17/20
+onboarding_friction     16/20         10/20
+praise                  16/20         18/20
+────────────────────────────────────────────────────
+Overall                 87/100 (87%)  82/100 (82%)
+
+Where they disagreed (21 tickets, first 6 shown):
+  ...
 
 ── Speed ──────────────────────────────────────────────
-SLM average latency:    30ms per prediction
-Ollama average latency: 898ms per prediction
+SLM average latency:    29ms per ticket
+qwen2.5:1.5b average latency: 230ms per ticket
 
-── Projected time to classify N items (sequential) ────
-Volume       SLM              Ollama
+── Projected time to classify N tickets (one at a time) ──
+Volume       SLM              qwen2.5:1.5b
 ──────────────────────────────────────────────
-1,000        30s              15min
-10,000       5min             2.5hr
-100,000      50min            24.9hr
+1,000        29s              4min
+10,000       5min             38min
+100,000      48min            6.4hr
 ```
 
-Those are the numbers we got. Your speeds will depend on your computer.
+**Look at the overall line first.** The general model is close: 82% vs. 87%. It even beats your model on `feature_request` and `praise`. A general model with a well-built prompt is a real option, and it needed zero training examples.
 
-**Look at the Ollama column first.** Most of its answers aren't labels at all. Asked for one word, TinyLlama wrote a customer-service reply ("Thank you for your feedback! We understand your concern..."). The script squashes that reply into a label-shaped string like `responsethankyouforsha`, which never matches. TinyLlama is a general chat model small enough to download in a minute, and models that small don't reliably follow format instructions. Larger general models follow instructions much more reliably, at the cost of a multi-gigabyte download and slower answers.
+**Then look at `onboarding_friction`.** 10 out of 20 for the general model, 16 for yours. That's the label you tuned in Chapter 06, and the one where *your* definition matters most. The general model only knows the one-line description "where new users are getting stuck." Your model learned from your examples that a broken step during setup is onboarding friction, not a bug. That's the case for fine-tuning in one row: it's not smarter overall, it's better at the specific distinctions your team cares about.
 
-**Then look at what your model missed.** Both of its mistakes are onboarding tickets labeled `bug_report` — the same weak spot you found in Chapter 05 and improved in Chapter 06, but didn't eliminate.
-
-**Read the latency numbers.** The fine-tuned model is faster because it does exactly one thing. Ollama generates tokens one at a time — a process designed for flexible open-ended output, not structured classification.
+**Read the latency numbers.** Your model is about 8 times faster. It's much smaller (about 66 million parameters vs. 1.5 billion), and it does exactly one thing: read the text once and pick a label. The general model has to run all of its parameters to write out its answer, even when the answer is one word. At 100 tickets the gap is seconds. At 100,000 it's hours.
 
 > [!TIP]
-> **Tradeoff:** You could classify with GPT-4o or Claude via API. The results would be comparable on accuracy. The key differences:
+> **Tradeoff:** You could also classify with a large hosted model like GPT or Claude via an API. Those are far bigger than the general model you just ran, so they'd likely do better on accuracy (we haven't tested them here). The key differences:
 > - **Cost**: API providers charge per token. At 100k classifications, that's a real budget line. Your local model costs $0 per call after training.
 > - **Latency**: API calls add network round-trip time. Your local model is purely local.
 > - **Data**: API calls send your customer data to a third party. Your local model never leaves your machine.
@@ -368,7 +374,10 @@ The model is still loading. Wait a few seconds and try again. Watch the server t
 The server must be running before you run compare. Check your first terminal — if the server stopped, restart it with `npm run start`.
 
 **Ollama errors in compare**
-Make sure Ollama is running (`ollama serve`) and tinyllama is installed (`ollama pull tinyllama`). The classifier itself still works without Ollama — only the comparison step needs it.
+Make sure Ollama is running (`ollama serve`) and the comparison model is installed (`ollama pull qwen2.5:1.5b`). The classifier itself still works without Ollama — only the comparison step needs it.
+
+**Your laptop struggles running the comparison model**
+Try a smaller general model: `ollama pull qwen2.5:0.5b`, then `OLLAMA_MODEL=qwen2.5:0.5b npm run compare`. It's under 400MB, but expect a much lower score: it got 63 out of 100 when we tried it.
 
 ---
 

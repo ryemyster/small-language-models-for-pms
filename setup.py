@@ -157,11 +157,13 @@ header("Step 5 of 5: Checking Ollama")
 ok_ollama, ollama_out = run("ollama list")
 if ok_ollama:
     ok("Ollama is installed and running")
-    # Check for tinyllama
-    ok_llama, _ = run("ollama show tinyllama 2>/dev/null || ollama show tinyllama:latest 2>/dev/null")
-    if not ok_llama:
-        info("tinyllama model not yet downloaded — run this when ready:")
-        info("  ollama pull tinyllama")
+    # Check for the general model Chapter 07 compares against
+    ok_llm, _ = run("ollama show qwen2.5:1.5b")
+    if ok_llm:
+        ok("qwen2.5:1.5b is downloaded (for the Chapter 07 comparison)")
+    else:
+        info("qwen2.5:1.5b not yet downloaded (about 1GB) — run this when ready:")
+        info("  ollama pull qwen2.5:1.5b")
         info("(needed for the Chapter 07 comparison — not required for training)")
 else:
     fail("Ollama not found or not running")

@@ -264,10 +264,10 @@ added 47 packages in 3s
 
 ## Step 7: Pull the Ollama comparison model
 
-This downloads the local language model we'll compare against in Chapter 07. TinyLlama is small — about 640MB — so it downloads in a minute or two even on a slow connection.
+This downloads the general-purpose language model your model goes up against in Chapter 07. It's small for a general model — about 1GB to download, and it needs about 1GB of memory while it runs — so it fits on most laptops.
 
 ```
-ollama pull tinyllama
+ollama pull qwen2.5:1.5b
 ```
 
 You should see a progress bar, then:

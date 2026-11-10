@@ -20,7 +20,7 @@ This is the complete final state of the tutorial — everything built across Cha
 | `experiment-log.md` | Track your training runs |
 | `src/server.ts` | Classifier endpoint |
 | `src/classify.ts` | TypeScript client |
-| `src/compare.ts` | SLM vs. TinyLlama comparison |
+| `src/compare.ts` | SLM vs. general model (qwen2.5:1.5b) on the fixed eval |
 | `src/store.ts` | Classify + embed + store (Chapter 08) |
 | `src/search.ts` | Semantic search (Chapter 08) |
 | `supabase/migrations/` | pgvector schema |
